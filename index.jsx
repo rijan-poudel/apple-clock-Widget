@@ -8,11 +8,17 @@ const config = {
   accent: "#a8a8a8",
   snap: 8,
   autoLaunchEyedropper: false,
+  // Ring modes to cycle through (in order). Available:
+  // battery, second, year, weekend, color
+  modes: ["battery", "second", "year", "weekend", "color"],
+  // Mode shown when the widget loads (pick one from `modes`).
+  defaultMode: "battery",
 };
 
 const radius = 45;
 const circumference = 2 * Math.PI * radius;
-const modes = ["second", "day", "year", "color"];
+const modes = config.modes;
+const defaultModeIndex = Math.max(0, modes.indexOf(config.defaultMode));
 const DEFAULT_PANE_COLOR = "#26536a";
 const loadedAt = Date.now();
 
@@ -70,13 +76,27 @@ const launchEyedropper = (dispatch, ox, oy) => {
     .catch(() => {});
 };
 
+const fetchBattery = (dispatch) => {
+  run(`pmset -g batt`)
+    .then((out) => {
+      const text = String(out || "");
+      const match = text.match(/(\d+)%/);
+      if (!match) return;
+      const percent = Math.min(100, parseInt(match[1], 10));
+      const charging = !/discharging/.test(text) && /(charging|charged|AC Power)/.test(text);
+      dispatch({ type: "BATTERY", battery: { percent, charging } });
+    })
+    .catch(() => {});
+};
+
 export const refreshFrequency = 250;
 export const initialState = {
   now: loadedAt,
-  modeIndex: 0,
+  modeIndex: defaultModeIndex,
   offsetX: 0,
   offsetY: 0,
   paneColor: DEFAULT_PANE_COLOR,
+  battery: null,
 };
 export const command = (dispatch) => dispatch({ type: "TICK", now: Date.now() });
 
@@ -101,6 +121,8 @@ export const init = (dispatch) => {
       }
     })
     .catch(() => {});
+  fetchBattery(dispatch);
+  setInterval(() => fetchBattery(dispatch), 60000);
 };
 
 export const updateState = (event, previousState = initialState) => {
@@ -122,6 +144,9 @@ export const updateState = (event, previousState = initialState) => {
   if (event.type === "CYCLE_MODE") {
     const currentMode = Number.isFinite(previousState.modeIndex) ? previousState.modeIndex : 0;
     return { ...previousState, modeIndex: (currentMode + 1) % modes.length };
+  }
+  if (event.type === "BATTERY") {
+    return { ...previousState, battery: event.battery };
   }
   return previousState;
 };
@@ -180,15 +205,45 @@ export const className = `
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    padding: 3px 18px 2px 25px;
+    padding: 6px 22px 2px 26px;
   }
 
   .date {
-    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+    min-height: 12px;
+  }
+
+  .accent-dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--ring, ${config.accent});
+    box-shadow: 0 0 8px rgba(168, 168, 168, .5);
+  }
+
+  .date-week {
+    color: rgba(255, 255, 255, .6);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  .date-sep {
+    color: rgba(255, 255, 255, .35);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  .date-day {
     color: #fff;
-    font-size: 11px;
-    font-weight: 520;
-    letter-spacing: .1px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
   }
 
   .time-row {
@@ -198,10 +253,10 @@ export const className = `
 
   .time {
     color: #fff;
-    font-size: 64px;
-    font-weight: 300;
+    font-size: 72px;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -3.5px;
+    letter-spacing: -3px;
     line-height: .92;
   }
 
@@ -210,30 +265,11 @@ export const className = `
   }
 
   .period {
-    margin: 0 0 6px 8px;
+    margin: 0 0 8px 8px;
     color: #fff;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: .5px;
-  }
-
-  .location {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 16px;
-    color: #fff;
-    font-size: 9px;
-    font-weight: 650;
-    letter-spacing: .35px;
-  }
-
-  .live-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: ${config.accent};
-    box-shadow: 0 0 8px rgba(168, 168, 168, .6);
   }
 
   .right-pane {
@@ -337,39 +373,51 @@ const snapValue = (value, grid) => Math.round(value / grid) * grid;
 
 const getProgressData = (date, mode) => {
   const seconds = date.getSeconds() + date.getMilliseconds() / 1000;
-  const minutes = date.getMinutes() + seconds / 60;
-  const hours = date.getHours() + minutes / 60;
+  const hours = date.getHours() + date.getMinutes() / 60 + seconds / 3600;
+  const year = date.getFullYear();
 
-  if (mode === "day") {
-    const progress = hours / 24;
-    return { progress, value: `${Math.floor(progress * 100)}%`, unit: "DAY" };
+  if (mode === "weekend") {
+    const dayOfWeek = date.getDay();
+    const daysToSat = (6 - dayOfWeek + 7) % 7;
+    const hoursToWeekend = daysToSat * 24 + (24 - hours);
+    return {
+      progress: Math.min(1, (dayOfWeek * 24 + hours) / (6 * 24)),
+      value: `${Math.floor(hoursToWeekend)}h`,
+      unit: "WKND",
+    };
   }
   if (mode === "year") {
-    const startOfYear = new Date(date.getFullYear(), 0, 0);
-    const dayOfYear = Math.floor((date - startOfYear) / 86400000);
-    const year = date.getFullYear();
-    const daysInYear =
-      (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 366 : 365;
+    const dayOfYear = Math.floor((date - new Date(year, 0, 0)) / 86400000);
+    const daysInYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 366 : 365;
     return { progress: dayOfYear / daysInYear, value: String(dayOfYear), unit: "DAY" };
   }
   return { progress: seconds / 60, value: pad(date.getSeconds()), unit: "SEC" };
 };
 
-export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor = DEFAULT_PANE_COLOR }, dispatch) => {
+const getBatteryData = (battery) => {
+  const percent = battery && Number.isFinite(battery.percent) ? battery.percent : null;
+  return {
+    progress: percent === null ? 0 : percent / 100,
+    value: percent === null ? "--" : `${percent}%`,
+    unit: battery && battery.charging ? "CHARGING" : "BAT",
+  };
+};
+
+export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor = DEFAULT_PANE_COLOR, battery }, dispatch) => {
   const date = new Date(Number.isFinite(now) ? now : Date.now());
   const rawHours = date.getHours();
   const displayHours = config.use24Hour ? rawHours : rawHours % 12 || 12;
   const period = config.use24Hour ? "" : rawHours >= 12 ? "PM" : "AM";
   const weekday = date.toLocaleDateString(undefined, { weekday: "long" });
   const month = date.toLocaleDateString(undefined, { month: "long" });
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "LOCAL";
-  const location = timeZone.split("/").pop().replace(/_/g, " ");
   const safeModeIndex = Number.isFinite(modeIndex) ? modeIndex % modes.length : 0;
   const mode = modes[safeModeIndex];
   const isColorMode = mode === "color";
   const progressData = isColorMode
     ? { progress: 1, value: paneColor.replace("#", "").toUpperCase(), unit: "COLOR" }
-    : getProgressData(date, mode);
+    : mode === "battery"
+      ? getBatteryData(battery)
+      : getProgressData(date, mode);
   const dashOffset = circumference * (1 - progressData.progress);
 
   const handlePointerMove = (e) => {
@@ -414,16 +462,20 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
       className="watch-card"
       role="timer"
       aria-label={`Local time ${pad(displayHours)}:${pad(date.getMinutes())}`}
-      style={{ "--pane": paneColor, transform: `translate(${offsetX}px, ${offsetY}px)` }}
+      style={{ "--pane": paneColor, "--ring": isColorMode ? paneColor : undefined, transform: `translate(${offsetX}px, ${offsetY}px)` }}
       onPointerDown={handlePointerDown}
     >
       <div className="left-pane">
-        <div className="date">{weekday}, {month} {date.getDate()}</div>
+        <div className="date">
+          <span className="accent-dot" aria-hidden="true" />
+          <span className="date-week">{weekday.toUpperCase()}</span>
+          <span className="date-sep" aria-hidden="true">·</span>
+          <span className="date-day">{month.toUpperCase()} {date.getDate()}</span>
+        </div>
         <div className="time-row">
           <div className="time">{pad(displayHours)}<span className="colon">:</span>{pad(date.getMinutes())}</div>
           {period && <span className="period">{period}</span>}
         </div>
-        <div className="location"><span className="live-dot" />{location}</div>
       </div>
 
       <button
@@ -450,7 +502,6 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
           className="progress-svg"
           viewBox="0 0 112 112"
           aria-hidden="true"
-          style={isColorMode ? { "--ring": paneColor } : undefined}
         >
           <circle className="progress-bg" cx="56" cy="56" r={radius} />
           <circle

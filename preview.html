@@ -11,12 +11,15 @@
       .watch-card { position: relative; display: flex; width: 430px; height: 182px; padding: 8px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 40px; background: linear-gradient(135deg, #1a1b1ee0, #07080aeb 62%); -webkit-backdrop-filter: blur(30px) saturate(135%); backdrop-filter: blur(30px) saturate(135%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; cursor: grab; touch-action: none; }
       .watch-card:active { cursor: grabbing; }
       .watch-card::before { content: ""; position: absolute; top: 0; left: 52px; width: 128px; height: 1px; background: linear-gradient(90deg, transparent, #ffffff38, transparent); }
-      .left-pane { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; padding: 3px 18px 2px 25px; }
-      .date { margin-bottom: 10px; color: #fff; font-size: 11px; font-weight: 520; letter-spacing: .1px; }
-      .time { color: #fff; font-size: 64px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -3.5px; line-height: .92; }
+      .left-pane { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; padding: 6px 22px 2px 26px; }
+      .date { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; min-height: 12px; }
+      .accent-dot { flex: none; width: 6px; height: 6px; border-radius: 2px; background: var(--ring, #a8a8a8); box-shadow: 0 0 8px #a8a8a880; }
+      .date-week { color: #ffffff99; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
+      .date-sep { color: #ffffff59; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
+      .date-day { color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
+      .time-row { display: flex; align-items: flex-end; }
+      .time { color: #fff; font-size: 72px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -3px; line-height: .92; }
       .colon { color: #fff; }
-      .location { display: flex; align-items: center; gap: 7px; margin-top: 16px; color: #fff; font-size: 9px; font-weight: 650; letter-spacing: .35px; }
-      .live-dot { width: 5px; height: 5px; border-radius: 50%; background: #a8a8a8; box-shadow: 0 0 8px #a8a8a899; }
       .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 150px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 32px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black)); color: #fff; font-family: inherit; cursor: pointer; box-shadow: inset 0 1px 0 #ffffff14; transition: background .2s ease, transform .2s ease; }
       .right-pane:hover { background: radial-gradient(circle at 28% 8%, #ffffff21, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 92%, white), color-mix(in srgb, var(--pane) 42%, black)); }
       .right-pane:active { transform: scale(.985); }
@@ -32,9 +35,8 @@
   <body>
     <div class="watch-card">
       <div class="left-pane">
-        <div id="date" class="date"></div>
-        <div class="time"><span id="hours"></span><span class="colon">:</span><span id="minutes"></span></div>
-        <div class="location"><span class="live-dot"></span><span id="location"></span></div>
+        <div class="date"><span class="accent-dot"></span><span id="date-week" class="date-week"></span><span class="date-sep">·</span><span id="date-day" class="date-day"></span></div>
+        <div class="time-row"><span id="hours" class="time"></span><span class="colon">:</span><span id="minutes" class="time"></span></div>
       </div>
       <button id="progress-button" class="right-pane" type="button" aria-label="Change progress mode">
         <svg class="progress-svg" viewBox="0 0 112 112"><circle class="progress-bg" cx="56" cy="56" r="45" /><circle id="progress" class="progress-bar" cx="56" cy="56" r="45" /></svg>
@@ -43,11 +45,13 @@
     </div>
     <script>
       const pad = (value) => String(value).padStart(2, "0");
-      const modes = ["second", "day", "year", "color"];
+      const modes = ["battery", "second", "year", "weekend", "color"];
+      const DEFAULT_MODE = "battery";
       const circumference = 2 * Math.PI * 45;
       const DEFAULT_PANE_COLOR = "#26536a";
-      let modeIndex = 0;
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "LOCAL";
+      let modeIndex = Math.max(0, modes.indexOf(DEFAULT_MODE));
+      let batteryPercent = null;
+      let batteryCharging = false;
       const card = document.querySelector(".watch-card");
       let suppressClick = false;
       let offsetX = Number(localStorage.getItem("watch.offsetX") || 0);
@@ -81,7 +85,6 @@
         drag = null;
         setTimeout(() => { suppressClick = false; }, 0);
       });
-      document.querySelector("#location").textContent = timeZone.split("/").pop().replaceAll("_", " ");
       const openColorPanel = () => {
         const input = document.createElement("input");
         input.type = "color";
@@ -127,14 +130,20 @@
         let progress;
         let value;
         let unit;
-        if (mode === "day") {
-          progress = hours / 24;
-          value = `${Math.floor(progress * 100)}%`;
-          unit = "DAY";
+        if (mode === "battery") {
+          progress = batteryPercent === null ? 0 : batteryPercent / 100;
+          value = batteryPercent === null ? "--" : `${batteryPercent}%`;
+          unit = batteryCharging ? "CHARGING" : "BAT";
+        } else if (mode === "weekend") {
+          const dayOfWeek = now.getDay();
+          const daysToSat = (6 - dayOfWeek + 7) % 7;
+          const hoursToWeekend = daysToSat * 24 + (24 - hours);
+          progress = Math.min(1, (dayOfWeek * 24 + hours) / (6 * 24));
+          value = `${Math.floor(hoursToWeekend)}h`;
+          unit = "WKND";
         } else if (mode === "year") {
-          const startOfYear = new Date(now.getFullYear(), 0, 0);
-          const dayOfYear = Math.floor((now - startOfYear) / 86400000);
           const year = now.getFullYear();
+          const dayOfYear = Math.floor((now - new Date(year, 0, 0)) / 86400000);
           const daysInYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 366 : 365;
           progress = dayOfYear / daysInYear;
           value = String(dayOfYear);
@@ -150,7 +159,9 @@
         }
         document.querySelector("#hours").textContent = pad(now.getHours());
         document.querySelector("#minutes").textContent = pad(now.getMinutes());
-        document.querySelector("#date").textContent = `${now.toLocaleDateString(undefined, { weekday: "long" })}, ${now.toLocaleDateString(undefined, { month: "long" })} ${now.getDate()}`;
+        document.querySelector("#date-week").textContent = now.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+        document.querySelector("#date-day").textContent = `${now.toLocaleDateString(undefined, { month: "long" }).toUpperCase()} ${now.getDate()}`;
+        card.style.setProperty("--ring", mode === "color" ? paneColor : "#a8a8a8");
         const progressRing = document.querySelector("#progress");
         progressRing.style.strokeDashoffset = circumference * (1 - progress);
         progressRing.style.stroke = mode === "color" ? paneColor : "";
