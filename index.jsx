@@ -193,15 +193,15 @@ export const className = `
   .watch-card {
     position: relative;
     display: flex;
-    width: 430px;
-    height: 182px;
-    padding: 8px;
+    width: 360px;
+    height: 158px;
+    padding: 7px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .10);
-    border-radius: 40px;
-    background: linear-gradient(135deg, rgba(26, 27, 30, .88), rgba(7, 8, 10, .92) 62%);
-    -webkit-backdrop-filter: blur(30px) saturate(135%);
-    backdrop-filter: blur(30px) saturate(135%);
+    border-radius: 32px;
+    background: linear-gradient(135deg, rgba(26, 27, 30, .52), rgba(7, 8, 10, .60) 62%);
+    -webkit-backdrop-filter: blur(40px) saturate(170%);
+    backdrop-filter: blur(40px) saturate(170%);
     box-shadow:
       0 24px 56px rgba(0, 0, 0, .38),
       0 5px 16px rgba(0, 0, 0, .20),
@@ -219,8 +219,8 @@ export const className = `
     content: "";
     position: absolute;
     top: 0;
-    left: 52px;
-    width: 128px;
+    left: 41px;
+    width: 100px;
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent);
     pointer-events: none;
@@ -233,26 +233,26 @@ export const className = `
     align-items: center;
     justify-content: center;
     min-width: 0;
-    padding: 16px 22px 26px 26px;
+    padding: 14px 16px 22px 18px;
   }
 
   .date {
     display: flex;
     align-items: baseline;
     gap: 10px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .date-week {
     color: rgba(255, 255, 255, .6);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .4px;
   }
 
   .date-day {
     color: rgba(255, 255, 255, .85);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: .4px;
   }
@@ -264,10 +264,10 @@ export const className = `
 
   .time {
     color: #fff;
-    font-size: 72px;
+    font-size: 56px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -3px;
+    letter-spacing: -2px;
     line-height: .92;
     background: linear-gradient(180deg, #fff 15%, rgba(255, 255, 255, .76));
     -webkit-background-clip: text;
@@ -281,13 +281,13 @@ export const className = `
     letter-spacing: 0;
     background: none;
     -webkit-text-fill-color: #fff;
-    transform: translateY(-6px);
+    transform: translateY(-5px);
   }
 
   .period {
-    margin: 0 0 8px 8px;
+    margin: 0 0 7px 7px;
     color: #fff;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     letter-spacing: .5px;
   }
@@ -297,12 +297,12 @@ export const className = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 150px;
+    width: 144px;
     margin: 0;
     padding: 0;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .08);
-    border-radius: 32px;
+    border-radius: 26px;
     outline: none;
     background:
       radial-gradient(circle at 28% 8%, rgba(255, 255, 255, .11), transparent 43%),
@@ -343,8 +343,8 @@ export const className = `
   }
 
   .progress-svg {
-    width: 112px;
-    height: 112px;
+    width: 88px;
+    height: 88px;
     transform: rotate(-90deg);
   }
 
@@ -383,28 +383,28 @@ export const className = `
 
   .progress-value {
     color: #fff;
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 500;
     line-height: 1;
     letter-spacing: -1px;
   }
 
   .progress-unit {
-    margin-top: 5px;
+    margin-top: 4px;
     color: rgba(255, 255, 255, .62);
-    font-size: 7px;
+    font-size: 5.5px;
     font-weight: 650;
     letter-spacing: 1.1px;
   }
 
   .progress-unit.color-hint {
-    font-size: 6.5px;
+    font-size: 5.5px;
     letter-spacing: .6px;
     white-space: nowrap;
   }
 
   .progress-value.color-value {
-    font-size: 21px;
+    font-size: 16px;
     white-space: nowrap;
   }
 

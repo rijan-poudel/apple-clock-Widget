@@ -8,28 +8,28 @@
       * { box-sizing: border-box; }
       html, body { width: 100%; height: 100%; margin: 0; }
       body { display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 24% 10%, #586576 0, #2a323e 26%, transparent 55%), radial-gradient(circle at 85% 82%, #322228 0, #151920 31%, transparent 58%), #090c11; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; color: white; user-select: none; -webkit-font-smoothing: antialiased; }
-      .watch-card { position: relative; display: flex; width: 430px; height: 182px; padding: 8px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 40px; background: linear-gradient(135deg, #1a1b1ee0, #07080aeb 62%); -webkit-backdrop-filter: blur(30px) saturate(135%); backdrop-filter: blur(30px) saturate(135%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; cursor: grab; touch-action: none; }
+      .watch-card { position: relative; display: flex; width: 360px; height: 158px; padding: 7px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 32px; background: linear-gradient(135deg, #1a1b1e85, #07080a99 62%); -webkit-backdrop-filter: blur(40px) saturate(170%); backdrop-filter: blur(40px) saturate(170%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; cursor: grab; touch-action: none; }
       .watch-card:active { cursor: grabbing; }
-      .watch-card::before { content: ""; position: absolute; top: 0; left: 52px; width: 128px; height: 1px; background: linear-gradient(90deg, transparent, #ffffff38, transparent); }
-      .left-pane { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 16px 22px 26px 26px; }
-      .date { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
-      .date-week { color: #ffffff99; font-size: 12px; font-weight: 700; letter-spacing: .4px; }
-      .date-day { color: #ffffffd9; font-size: 12px; font-weight: 700; letter-spacing: .4px; }
+      .watch-card::before { content: ""; position: absolute; top: 0; left: 41px; width: 100px; height: 1px; background: linear-gradient(90deg, transparent, #ffffff38, transparent); }
+      .left-pane { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 14px 16px 22px 18px; }
+      .date { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+      .date-week { color: #ffffff99; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
+      .date-day { color: #ffffffd9; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
       .time-row { display: flex; align-items: flex-end; }
-      .time { color: #fff; font-size: 72px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -3px; line-height: .92; background: linear-gradient(180deg, #fff 15%, #ffffffc2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-      .colon { display: inline-block; margin: 0 3px; letter-spacing: 0; background: none; -webkit-text-fill-color: #fff; transform: translateY(-6px); }
-      .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 150px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 32px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black)); color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent), inset 0 1px 0 #ffffff1f, inset 0 -12px 24px #00000038, inset 0 0 0 1px #ffffff0d; transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
+      .time { color: #fff; font-size: 56px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -2px; line-height: .92; background: linear-gradient(180deg, #fff 15%, #ffffffc2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .colon { display: inline-block; margin: 0 3px; letter-spacing: 0; background: none; -webkit-text-fill-color: #fff; transform: translateY(-5px); }
+      .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 144px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 26px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black)); color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent), inset 0 1px 0 #ffffff1f, inset 0 -12px 24px #00000038, inset 0 0 0 1px #ffffff0d; transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
       .right-pane:hover { background: radial-gradient(circle at 28% 8%, #ffffff21, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 92%, white), color-mix(in srgb, var(--pane) 42%, black)); box-shadow: 0 12px 30px color-mix(in srgb, var(--pane) 46%, transparent), inset 0 1px 0 #ffffff29, inset 0 -12px 24px #00000033, inset 0 0 0 1px #ffffff12; }
       .right-pane:active { transform: scale(.985); }
-      .progress-svg { width: 112px; height: 112px; transform: rotate(-90deg); }
+      .progress-svg { width: 88px; height: 88px; transform: rotate(-90deg); }
       .progress-bg { fill: none; stroke: #ffffff18; stroke-width: 6; }
       .progress-bar { fill: none; stroke: #a8a8a8; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 282.743; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--ring, #a8a8a8) 40%, transparent)); }
       .progress-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; pointer-events: none; }
       .progress-content-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; animation: valuePop .35s cubic-bezier(.2, .9, .25, 1); }
-      .progress-value { color: #fff; font-size: 28px; font-weight: 500; line-height: 1; letter-spacing: -1px; }
-      .progress-unit { margin-top: 5px; color: #ffffff9e; font-size: 7px; font-weight: 650; letter-spacing: 1.1px; }
-      .progress-unit.color-hint { font-size: 6.5px; letter-spacing: .6px; white-space: nowrap; }
-      .progress-value.color-value { font-size: 21px; white-space: nowrap; }
+      .progress-value { color: #fff; font-size: 22px; font-weight: 500; line-height: 1; letter-spacing: -1px; }
+      .progress-unit { margin-top: 4px; color: #ffffff9e; font-size: 5.5px; font-weight: 650; letter-spacing: 1.1px; }
+      .progress-unit.color-hint { font-size: 5.5px; letter-spacing: .6px; white-space: nowrap; }
+      .progress-value.color-value { font-size: 16px; white-space: nowrap; }
       @keyframes valuePop { from { opacity: 0; transform: translateY(5px) scale(.9); } to { opacity: 1; transform: none; } }
     </style>
   </head>
