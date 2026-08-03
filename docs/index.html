@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clacky — a digital watch for Übersicht</title>
+  <meta name="description" content="Clacky is a minimal Apple-inspired desktop watch widget for Übersicht with a live progress ring." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕐</text></svg>" />
+  <style>
+    :root {
+      --ring: #4f9dd8;
+      --card: rgba(26, 27, 30, .92);
+      --text: #eef1f5;
+      --muted: #9aa3ad;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: radial-gradient(circle at 22% 8%, #46536b 0, #262d38 28%, transparent 55%),
+                  radial-gradient(circle at 88% 90%, #32242c 0, #10141a 34%, transparent 58%),
+                  #090c11;
+      padding: 56px 24px 80px;
+    }
+    .wrap { max-width: 720px; width: 100%; }
+    header { text-align: center; margin-bottom: 48px; }
+    h1 { font-size: 56px; font-weight: 800; letter-spacing: -1.5px; }
+    .tag { color: var(--muted); font-size: 18px; margin-top: 10px; }
+
+    /* Mini widget mock */
+    .mock {
+      width: 340px;
+      margin: 32px auto 0;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(26, 27, 30, .92), rgba(7, 8, 10, .94) 62%);
+      box-shadow: 0 24px 56px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .09);
+    }
+    .mock .left { flex: 1; padding-left: 10px; text-align: center; }
+    .mock .date { color: rgba(255, 255, 255, .75); font-size: 11px; font-weight: 700; letter-spacing: .4px; margin-bottom: 6px; }
+    .mock .time { font-size: 46px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+    .mock .ring { position: relative; width: 104px; height: 104px; flex: none; }
+    .mock .ring svg { width: 104px; height: 104px; transform: rotate(-90deg); }
+    .mock .ring circle { fill: none; stroke-width: 7; }
+    .mock .ring .bg { stroke: rgba(255, 255, 255, .12); }
+    .mock .ring .fg { stroke: var(--ring); stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 57; filter: drop-shadow(0 0 6px rgba(79, 157, 216, .6)); }
+    .mock .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .mock .val { font-size: 20px; font-weight: 600; }
+    .mock .unit { font-size: 8px; letter-spacing: 1.1px; color: rgba(255, 255, 255, .62); margin-top: 2px; }
+
+    section { margin-bottom: 40px; }
+    h2 { font-size: 20px; font-weight: 700; margin-bottom: 14px; }
+    p { color: #c6ccd4; line-height: 1.65; }
+    ul { list-style: none; }
+    ul li { color: #c6ccd4; padding: 6px 0 6px 22px; position: relative; line-height: 1.5; }
+    ul li::before { content: "●"; position: absolute; left: 2px; top: 8px; font-size: 8px; color: var(--ring); }
+
+    pre {
+      background: #10151b;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 12px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-size: 14px;
+      margin: 12px 0;
+    }
+    code { font-family: "SF Mono", Menlo, monospace; }
+    p code, li code { background: #161c23; padding: 2px 6px; border-radius: 6px; font-size: .9em; }
+
+    .cmd { display: flex; align-items: center; gap: 10px; background: #10151b; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 14px 16px; }
+    .cmd .prompt { color: var(--ring); font-weight: 700; }
+    .cmd code { white-space: nowrap; overflow-x: auto; }
+
+    .card {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-top: 12px;
+    }
+    .note { color: var(--muted); font-size: 14px; margin-top: 10px; }
+    footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 48px; }
+    footer a { color: var(--ring); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Clacky</h1>
+      <p class="tag">A minimal desktop watch for Übersicht</p>
+      <div class="mock" aria-hidden="true">
+        <div class="left">
+          <div class="date">MONDAY · AUGUST 3</div>
+          <div class="time">10:48</div>
+        </div>
+        <div class="ring">
+          <svg viewBox="0 0 112 112">
+            <circle class="bg" cx="56" cy="56" r="45" />
+            <circle class="fg" cx="56" cy="56" r="45" />
+          </svg>
+          <div class="center"><span class="val">80%</span><span class="unit">BATTERY</span></div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>What is it?</h2>
+      <p>A restrained Apple-inspired watch for your desktop: one glass card, a large local time display, and a progress ring that doubles as a live complication. Click the ring to cycle modes, right-click to pick the ring color with the native macOS eyedropper.</p>
+    </section>
+
+    <section>
+      <h2>Install</h2>
+      <p>One command, no git needed. You need macOS and <a href="https://ubersicht.app" style="color:var(--ring)">Übersicht</a> (free).</p>
+      <div class="cmd"><span class="prompt">$</span><code>curl -fsSL https://raw.githubusercontent.com/rijan-poudel/apple-clock-Widget/main/install.sh | sh</code></div>
+      <p class="note">Then click the Übersicht icon in the menu bar → <strong>Refresh</strong>, and enable <em>clacky</em> if it isn't on already.</p>
+    </section>
+
+    <section>
+      <h2>Ring modes</h2>
+      <ul>
+        <li><strong>Battery</strong> — battery level, shows <em>charging</em> when plugged in</li>
+        <li><strong>Second</strong> — live seconds and progress through the minute</li>
+        <li><strong>Year</strong> — day of the year and progress through it</li>
+        <li><strong>Weekend</strong> — hours until Saturday</li>
+        <li><strong>Color</strong> — pick the ring color</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Clicking &amp; permissions</h2>
+      <p>For the ring to respond to clicks, give Übersicht <strong>Accessibility</strong> access (System Settings → Privacy &amp; Security) and enable its <strong>Interaction Shortcut</strong> in Übersicht's preferences.</p>
+    </section>
+
+    <section>
+      <h2>Automatic updates</h2>
+      <p>Installed via the command above, Clacky pulls the latest version from GitHub whenever Übersicht loads it (at most once per hour). Your position, mode, and color are never overwritten.</p>
+    </section>
+
+    <section>
+      <h2>Customize</h2>
+      <p>Open <code>index.jsx</code> in the widget folder and edit the <code>config</code> object to change 12/24-hour display, accent color, which modes are enabled, the default mode, or to turn off auto-updates (<code>autoUpdate: false</code>).</p>
+    </section>
+
+    <footer>
+      Open source on <a href="https://github.com/rijan-poudel/apple-clock-Widget">GitHub</a> · made for Übersicht
+    </footer>
+  </div>
+</body>
+</html>
