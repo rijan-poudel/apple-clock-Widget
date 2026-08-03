@@ -8,6 +8,9 @@ const config = {
   accent: "#a8a8a8",
   snap: 8,
   autoLaunchEyedropper: false,
+  // Pull the latest code from GitHub whenever the widget loads
+  // (only works when the widget was installed via `install.sh`).
+  autoUpdate: true,
   // Ring modes to cycle through (in order). Available:
   // battery, second, year, weekend, color
   modes: ["battery", "second", "year", "weekend", "color"],
@@ -89,6 +92,24 @@ const fetchBattery = (dispatch) => {
     .catch(() => {});
 };
 
+const autoUpdate = () => {
+  if (!folder || !config.autoUpdate) return;
+  const stamp = `${folder}/.update-stamp`;
+  run(`cat ${quoteShell(stamp)} 2>/dev/null || true`)
+    .then((out) => {
+      const last = parseInt(String(out || "").trim(), 10);
+      if (Number.isFinite(last) && Date.now() - last < 3600 * 1000) return;
+      const command = [
+        `test -d ${quoteShell(`${folder}/.git`)}`,
+        `git -C ${quoteShell(folder)} fetch --quiet origin main`,
+        `git -C ${quoteShell(folder)} merge --ff-only origin/main --quiet`,
+        `date +%s > ${quoteShell(stamp)}`,
+      ].join(" && ");
+      run(command).catch(() => {});
+    })
+    .catch(() => {});
+};
+
 export const refreshFrequency = 250;
 export const initialState = {
   now: loadedAt,
@@ -120,6 +141,7 @@ export const init = (dispatch) => {
         };
       } catch (e) {}
       dispatch({ type: "RESTORE", ...restored });
+      autoUpdate();
       if (config.autoLaunchEyedropper) {
         launchEyedropper(dispatch, restored.offsetX, restored.offsetY, restored.modeIndex);
       }
