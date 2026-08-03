@@ -403,12 +403,9 @@ export const className = `
     white-space: nowrap;
   }
 
-  .color-icon {
-    width: 26px;
-    height: 26px;
-    fill: #fff;
-    opacity: .95;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35));
+  .progress-value.color-value {
+    font-size: 21px;
+    white-space: nowrap;
   }
 
   @keyframes valuePop {
@@ -569,13 +566,7 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
         </svg>
         <span className="progress-content">
           <div key={mode} className="progress-content-inner">
-            {isColorMode ? (
-              <svg key="color" className="color-icon" viewBox="0 0 512 512" aria-hidden="true">
-                <path d="M50.75 333.25c-12 12-18.75 28.28-18.75 45.26V424L0 480l32 32 56-32h45.49c16.97 0 33.25-6.74 45.25-18.74l126.64-126.62c-14.58-6.12-28.8-14.03-41.1-26.35L50.75 333.25zM483.88 28.12c-37.47-37.5-98.28-37.5-135.75 0L238.75 137.5c-6.25 6.25-6.25 16.38 0 22.63l9.37 9.37-34.25 34.25c-9.37 9.37-9.37 24.56 0 33.94l22.62 22.62c9.37 9.37 24.56 9.37 33.94 0l34.25-34.25 9.37 9.37c6.25 6.25 16.38 6.25 22.63 0L411.88 164c37.5-37.47 37.5-98.28 0-135.75z" />
-              </svg>
-            ) : (
-              <span className="progress-value">{progressData.value}</span>
-            )}
+            <span className={`progress-value${isColorMode ? " color-value" : ""}`}>{progressData.value}</span>
             <span className={`progress-unit${isColorMode ? " color-hint" : ""}`}>{progressData.unit}</span>
           </div>
         </span>
