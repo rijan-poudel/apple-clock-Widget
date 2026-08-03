@@ -397,6 +397,12 @@ export const className = `
     letter-spacing: 1.1px;
   }
 
+  .progress-unit.color-hint {
+    font-size: 6.5px;
+    letter-spacing: .6px;
+    white-space: nowrap;
+  }
+
   .color-icon {
     width: 26px;
     height: 26px;
@@ -463,7 +469,7 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
   const mode = modes[safeModeIndex];
   const isColorMode = mode === "color";
   const progressData = isColorMode
-    ? { progress: 1, value: paneColor.replace("#", "").toUpperCase(), unit: "COLOR" }
+    ? { progress: 1, value: paneColor.replace("#", "").toUpperCase(), unit: "RIGHT-CLICK TO PICK" }
     : mode === "battery"
       ? getBatteryData(battery)
       : getProgressData(date, mode);
@@ -570,7 +576,7 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
             ) : (
               <span className="progress-value">{progressData.value}</span>
             )}
-            <span className="progress-unit">{progressData.unit}</span>
+            <span className={`progress-unit${isColorMode ? " color-hint" : ""}`}>{progressData.unit}</span>
           </div>
         </span>
       </button>

@@ -28,6 +28,7 @@
       .progress-content-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; animation: valuePop .35s cubic-bezier(.2, .9, .25, 1); }
       .progress-value { color: #fff; font-size: 28px; font-weight: 500; line-height: 1; letter-spacing: -1px; }
       .progress-unit { margin-top: 5px; color: #ffffff9e; font-size: 7px; font-weight: 650; letter-spacing: 1.1px; }
+      .progress-unit.color-hint { font-size: 6.5px; letter-spacing: .6px; white-space: nowrap; }
       .color-icon { display: none; width: 26px; height: 26px; fill: #fff; opacity: .95; filter: drop-shadow(0 1px 2px #00000059); }
       @keyframes valuePop { from { opacity: 0; transform: translateY(5px) scale(.9); } to { opacity: 1; transform: none; } }
     </style>
@@ -151,7 +152,7 @@
         } else if (mode === "color") {
           progress = 1;
           value = paneColor.replace("#", "").toUpperCase();
-          unit = "COLOR";
+          unit = "RIGHT-CLICK TO PICK";
         } else {
           progress = seconds / 60;
           value = pad(now.getSeconds());
@@ -169,6 +170,7 @@
         document.querySelector("#progress-value").style.display = mode === "color" ? "none" : "";
         document.querySelector("#color-icon").style.display = mode === "color" ? "" : "none";
         document.querySelector("#progress-unit").textContent = unit;
+        document.querySelector("#progress-unit").classList.toggle("color-hint", mode === "color");
         requestAnimationFrame(update);
       };
       update();
