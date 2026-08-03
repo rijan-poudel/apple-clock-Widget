@@ -8,17 +8,18 @@
       * { box-sizing: border-box; }
       html, body { width: 100%; height: 100%; margin: 0; }
       body { display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 24% 10%, #586576 0, #2a323e 26%, transparent 55%), radial-gradient(circle at 85% 82%, #322228 0, #151920 31%, transparent 58%), #090c11; font-family: "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; color: white; user-select: none; -webkit-font-smoothing: antialiased; }
-      .watch-card { position: relative; display: flex; width: 360px; height: 158px; padding: 7px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 32px; background: linear-gradient(135deg, #1a1b1e85, #07080a99 62%); -webkit-backdrop-filter: blur(40px) saturate(170%); backdrop-filter: blur(40px) saturate(170%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; cursor: grab; touch-action: none; }
+      .watch-card { position: relative; display: flex; width: 350px; height: 166px; padding: 7px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 32px; background: radial-gradient(120% 100% at 14% 0%, #ffffff14, transparent 46%), linear-gradient(135deg, #1a1b1ec7, #07080ad9 62%); -webkit-backdrop-filter: blur(50px) saturate(180%); backdrop-filter: blur(50px) saturate(180%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; cursor: grab; touch-action: none; }
       .watch-card:active { cursor: grabbing; }
+      .frost { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .14; pointer-events: none; }
       .watch-card::before { content: ""; position: absolute; top: 0; left: 41px; width: 100px; height: 1px; background: linear-gradient(90deg, transparent, #ffffff38, transparent); }
-      .left-pane { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 14px 16px 22px 18px; }
+      .left-pane { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 14px 12px 22px 14px; }
       .date { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
       .date-week { color: #ffffff99; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
       .date-day { color: #ffffffd9; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
       .time-row { display: flex; align-items: flex-end; }
-      .time { color: #fff; font-size: 56px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -2px; line-height: .92; background: linear-gradient(180deg, #fff 15%, #ffffffc2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-      .colon { display: inline-block; margin: 0 3px; letter-spacing: 0; background: none; -webkit-text-fill-color: #fff; transform: translateY(-5px); }
-      .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 144px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 26px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black)); color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent), inset 0 1px 0 #ffffff1f, inset 0 -12px 24px #00000038, inset 0 0 0 1px #ffffff0d; transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
+      .time { color: #fff; font-size: 54px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -2px; line-height: .92; background: linear-gradient(180deg, #fff 15%, #ffffffc2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+      .colon { display: inline-block; margin: 0 2px; letter-spacing: 0; background: none; -webkit-text-fill-color: #fff; transform: translateY(-5px); }
+      .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 152px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 26px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black)); color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent), inset 0 1px 0 #ffffff1f, inset 0 -12px 24px #00000038, inset 0 0 0 1px #ffffff0d; transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
       .right-pane:hover { background: radial-gradient(circle at 28% 8%, #ffffff21, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 92%, white), color-mix(in srgb, var(--pane) 42%, black)); box-shadow: 0 12px 30px color-mix(in srgb, var(--pane) 46%, transparent), inset 0 1px 0 #ffffff29, inset 0 -12px 24px #00000033, inset 0 0 0 1px #ffffff12; }
       .right-pane:active { transform: scale(.985); }
       .progress-svg { width: 88px; height: 88px; transform: rotate(-90deg); }
@@ -35,6 +36,12 @@
   </head>
   <body>
     <div class="watch-card">
+      <svg class="frost" aria-hidden="true">
+        <defs>
+          <filter id="clackyNoise"><feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" stitchTiles="stitch" /><feColorMatrix type="saturate" values="0" /></filter>
+        </defs>
+        <rect width="100%" height="100%" filter="url(#clackyNoise)" />
+      </svg>
       <div class="left-pane">
         <div class="date"><span id="date-week" class="date-week"></span><span id="date-day" class="date-day"></span></div>
         <div class="time-row"><span id="hours" class="time"></span><span class="colon">:</span><span id="minutes" class="time"></span></div>

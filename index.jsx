@@ -16,6 +16,12 @@ const config = {
   modes: ["battery", "second", "year", "weekend", "color"],
   // Mode shown when the widget loads (pick one from `modes`).
   defaultMode: "battery",
+  // Card dimensions in px. macOS widgets are: small 158×158, medium 338×158, large 338×338.
+  cardWidth: 350,
+  cardHeight: 166,
+  // Glass opacity (0–1). Lower = more translucent. The card uses backdrop blur plus a
+  // baked-in grain texture, so it looks frosted even during macOS's Space-switch re-sample.
+  glass: 0.78,
 };
 
 const radius = 45;
@@ -193,15 +199,17 @@ export const className = `
   .watch-card {
     position: relative;
     display: flex;
-    width: 360px;
-    height: 158px;
+    width: ${config.cardWidth}px;
+    height: ${config.cardHeight}px;
     padding: 7px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, .10);
     border-radius: 32px;
-    background: linear-gradient(135deg, rgba(26, 27, 30, .52), rgba(7, 8, 10, .60) 62%);
-    -webkit-backdrop-filter: blur(40px) saturate(170%);
-    backdrop-filter: blur(40px) saturate(170%);
+    background:
+      radial-gradient(120% 100% at 14% 0%, rgba(255, 255, 255, .08), transparent 46%),
+      linear-gradient(135deg, rgba(26, 27, 30, ${config.glass}), rgba(7, 8, 10, ${Math.min(1, config.glass + 0.08)}) 62%);
+    -webkit-backdrop-filter: blur(50px) saturate(180%);
+    backdrop-filter: blur(50px) saturate(180%);
     box-shadow:
       0 24px 56px rgba(0, 0, 0, .38),
       0 5px 16px rgba(0, 0, 0, .20),
@@ -213,6 +221,15 @@ export const className = `
 
   .watch-card:active {
     cursor: grabbing;
+  }
+
+  .frost {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: .14;
+    pointer-events: none;
   }
 
   .watch-card::before {
@@ -233,7 +250,7 @@ export const className = `
     align-items: center;
     justify-content: center;
     min-width: 0;
-    padding: 14px 16px 22px 18px;
+    padding: 14px 12px 22px 14px;
   }
 
   .date {
@@ -264,7 +281,7 @@ export const className = `
 
   .time {
     color: #fff;
-    font-size: 56px;
+    font-size: 54px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: -2px;
@@ -277,7 +294,7 @@ export const className = `
 
   .colon {
     display: inline-block;
-    margin: 0 3px;
+    margin: 0 2px;
     letter-spacing: 0;
     background: none;
     -webkit-text-fill-color: #fff;
@@ -297,7 +314,7 @@ export const className = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 144px;
+    width: 152px;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -517,6 +534,15 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
       style={{ "--pane": paneColor, "--ring": isColorMode ? paneColor : undefined, transform: `translate(${offsetX}px, ${offsetY}px)` }}
       onPointerDown={handlePointerDown}
     >
+      <svg className="frost" aria-hidden="true">
+        <defs>
+          <filter id="clackyNoise">
+            <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+        </defs>
+        <rect width="100%" height="100%" filter="url(#clackyNoise)" />
+      </svg>
       <div className="left-pane">
         <div className="date">
           <span className="date-week">{weekday.toUpperCase()}</span>
