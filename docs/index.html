@@ -30,6 +30,8 @@
     header { text-align: center; margin-bottom: 48px; }
     h1 { font-size: 56px; font-weight: 800; letter-spacing: -1.5px; }
     .tag { color: var(--muted); font-size: 18px; margin-top: 10px; }
+    .ver { margin-top: 14px; color: var(--muted); font-size: 13px; }
+    .ver code { background: #161c23; padding: 2px 8px; border-radius: 6px; }
 
     /* Mini widget mock */
     .mock {
@@ -47,48 +49,80 @@
     .mock .left { flex: 1; padding-left: 10px; text-align: center; }
     .mock .date { color: rgba(255, 255, 255, .75); font-size: 11px; font-weight: 700; letter-spacing: .4px; margin-bottom: 6px; }
     .mock .time { font-size: 46px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
-    .mock .ring { position: relative; width: 104px; height: 104px; flex: none; }
-    .mock .ring svg { width: 104px; height: 104px; transform: rotate(-90deg); }
-    .mock .ring circle { fill: none; stroke-width: 7; }
-    .mock .ring .bg { stroke: rgba(255, 255, 255, .12); }
-    .mock .ring .fg { stroke: var(--ring); stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 57; filter: drop-shadow(0 0 6px rgba(79, 157, 216, .6)); }
-    .mock .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .mock .val { font-size: 20px; font-weight: 600; }
-    .mock .unit { font-size: 8px; letter-spacing: 1.1px; color: rgba(255, 255, 255, .62); margin-top: 2px; }
+    .ring { position: relative; width: 104px; height: 104px; flex: none; }
+    .ring svg { width: 104px; height: 104px; transform: rotate(-90deg); }
+    .ring circle { fill: none; stroke-width: 7; }
+    .ring .bg { stroke: rgba(255, 255, 255, .12); }
+    .ring .fg { stroke: var(--ring); stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 57; filter: drop-shadow(0 0 6px rgba(79, 157, 216, .6)); }
+    .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .val { font-size: 20px; font-weight: 600; }
+    .unit { font-size: 8px; letter-spacing: 1.1px; color: rgba(255, 255, 255, .62); margin-top: 2px; }
 
     section { margin-bottom: 40px; }
     h2 { font-size: 20px; font-weight: 700; margin-bottom: 14px; }
     p { color: #c6ccd4; line-height: 1.65; }
+    a { color: var(--ring); }
     ul { list-style: none; }
     ul li { color: #c6ccd4; padding: 6px 0 6px 22px; position: relative; line-height: 1.5; }
     ul li::before { content: "●"; position: absolute; left: 2px; top: 8px; font-size: 8px; color: var(--ring); }
 
-    pre {
-      background: #10151b;
+    /* Mode showcase */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .scard {
+      background: rgba(255, 255, 255, .03);
       border: 1px solid rgba(255, 255, 255, .08);
-      border-radius: 12px;
-      padding: 16px 18px;
-      overflow-x: auto;
-      font-size: 14px;
-      margin: 12px 0;
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
     }
-    code { font-family: "SF Mono", Menlo, monospace; }
-    p code, li code { background: #161c23; padding: 2px 6px; border-radius: 6px; font-size: .9em; }
+    .scard .ring { width: 76px; height: 76px; margin: 0 auto 10px; }
+    .scard .ring svg { width: 76px; height: 76px; }
+    .scard .ring circle { stroke-width: 8; }
+    .scard .val { font-size: 15px; }
+    .scard .unit { font-size: 7px; }
+    .sname { font-weight: 700; margin-bottom: 4px; }
+    .sdesc { color: var(--muted); font-size: 12.5px; line-height: 1.5; }
 
+    /* Commands */
     .cmd { display: flex; align-items: center; gap: 10px; background: #10151b; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 14px 16px; }
-    .cmd .prompt { color: var(--ring); font-weight: 700; }
-    .cmd code { white-space: nowrap; overflow-x: auto; }
+    .cmd .prompt { color: var(--ring); font-weight: 700; flex: none; }
+    .cmd code { white-space: nowrap; overflow-x: auto; flex: 1; font-size: 14px; }
+    .copy {
+      flex: none;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .copy:hover { background: rgba(255, 255, 255, .16); }
+    .copy.copied { background: #2f7d46; border-color: #2f7d46; }
+    code { font-family: "SF Mono", Menlo, monospace; }
+    p code, li code, ol code { background: #161c23; padding: 2px 6px; border-radius: 6px; font-size: .9em; }
 
     .card {
       background: rgba(255, 255, 255, .03);
       border: 1px solid rgba(255, 255, 255, .08);
       border-radius: 16px;
       padding: 20px 22px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
+    .card h3 { font-size: 15px; margin-bottom: 10px; }
+    .card ol { margin: 0; padding-left: 20px; color: #c6ccd4; line-height: 1.8; }
     .note { color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+    /* Changelog */
+    .changelog { list-style: none; }
+    .changelog li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.06); line-height: 1.5; }
+    .changelog li:last-child { border-bottom: none; }
+    .changelog .date { color: var(--muted); font-size: 12px; display: inline-block; width: 92px; }
+    .changelog .sha { color: var(--ring); font-size: 12px; margin-right: 10px; }
+
     footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 48px; }
-    footer a { color: var(--ring); text-decoration: none; }
   </style>
 </head>
 <body>
@@ -96,6 +130,7 @@
     <header>
       <h1>Clacky</h1>
       <p class="tag">A minimal desktop watch for Übersicht</p>
+      <div class="ver">latest <code>ac766e8</code> · Aug 3, 2026</div>
       <div class="mock" aria-hidden="true">
         <div class="left">
           <div class="date">MONDAY · AUGUST 3</div>
@@ -117,21 +152,52 @@
     </section>
 
     <section>
-      <h2>Install</h2>
-      <p>One command, no git needed. You need macOS and <a href="https://ubersicht.app" style="color:var(--ring)">Übersicht</a> (free).</p>
-      <div class="cmd"><span class="prompt">$</span><code>curl -fsSL https://raw.githubusercontent.com/rijan-poudel/apple-clock-Widget/main/install.sh | sh</code></div>
-      <p class="note">Then click the Übersicht icon in the menu bar → <strong>Refresh</strong>, and enable <em>clacky</em> if it isn't on already.</p>
+      <h2>Ring modes</h2>
+      <div class="grid">
+        <div class="scard">
+          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#4f9dd8;stroke-dashoffset:57"/></svg><div class="center"><span class="val">80%</span><span class="unit">BATTERY</span></div></div>
+          <div class="sname">Battery</div>
+          <div class="sdesc">Live battery level, shows CHARGING when plugged in.</div>
+        </div>
+        <div class="scard">
+          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#7fd1a9;stroke-dashoffset:85"/></svg><div class="center"><span class="val">42s</span><span class="unit">SECOND</span></div></div>
+          <div class="sname">Second</div>
+          <div class="sdesc">Ticking seconds and progress through the minute.</div>
+        </div>
+        <div class="scard">
+          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#d8a64f;stroke-dashoffset:116"/></svg><div class="center"><span class="val">59%</span><span class="unit">YEAR</span></div></div>
+          <div class="sname">Year</div>
+          <div class="sdesc">Day of the year and progress through it.</div>
+        </div>
+        <div class="scard">
+          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#b57fd1;stroke-dashoffset:156"/></svg><div class="center"><span class="val">45%</span><span class="unit">WEEKEND</span></div></div>
+          <div class="sname">Weekend</div>
+          <div class="sdesc">Hours until Saturday, progress through the work week.</div>
+        </div>
+        <div class="scard">
+          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#f11825;stroke-dashoffset:0"/></svg><div class="center"><span class="val">F11825</span><span class="unit">COLOR</span></div></div>
+          <div class="sname">Color</div>
+          <div class="sdesc">Pick the ring color with the native macOS eyedropper.</div>
+        </div>
+      </div>
     </section>
 
     <section>
-      <h2>Ring modes</h2>
-      <ul>
-        <li><strong>Battery</strong> — battery level, shows <em>charging</em> when plugged in</li>
-        <li><strong>Second</strong> — live seconds and progress through the minute</li>
-        <li><strong>Year</strong> — day of the year and progress through it</li>
-        <li><strong>Weekend</strong> — hours until Saturday</li>
-        <li><strong>Color</strong> — pick the ring color</li>
-      </ul>
+      <h2>Install</h2>
+      <p>One command, no git needed. You need macOS and <a href="https://ubersicht.app">Übersicht</a> (free).</p>
+      <div class="cmd"><span class="prompt">$</span><code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/rijan-poudel/apple-clock-Widget/main/install.sh | sh</code><button class="copy" data-target="install-cmd">Copy</button></div>
+      <p class="note">Then click the Übersicht icon in the menu bar → <strong>Refresh</strong>, and enable <em>clacky</em> if it isn't on already.</p>
+
+      <div class="card">
+        <h3>Manual install (no terminal)</h3>
+        <ol>
+          <li><a href="https://github.com/rijan-poudel/apple-clock-Widget/archive/refs/heads/main.zip">Download the ZIP</a></li>
+          <li>Unzip it and rename the folder to <code>clacky.widget</code></li>
+          <li>In Übersicht's menu bar choose <strong>Open Widgets Folder</strong> and move the folder inside</li>
+          <li>Click the Übersicht icon → <strong>Refresh</strong></li>
+        </ol>
+        <p class="note">Manual installs don't get automatic updates — the one-liner does.</p>
+      </div>
     </section>
 
     <section>
@@ -149,9 +215,56 @@
       <p>Open <code>index.jsx</code> in the widget folder and edit the <code>config</code> object to change 12/24-hour display, accent color, which modes are enabled, the default mode, or to turn off auto-updates (<code>autoUpdate: false</code>).</p>
     </section>
 
+    <section>
+      <h2>Changelog</h2>
+      <ul class="changelog">
+        <li><span class="date">2026-08-03</span><span class="sha">ac766e8</span>Add Clacky landing page</li>
+        <li><span class="date">2026-08-03</span><span class="sha">589f317</span>Rename widget to clacky</li>
+        <li><span class="date">2026-08-03</span><span class="sha">dacdbc6</span>Add one-command installer with automatic updates</li>
+        <li><span class="date">2026-08-03</span><span class="sha">59cb9e1</span>Persist and restore last ring mode across reloads</li>
+        <li><span class="date">2026-08-03</span><span class="sha">7f573a9</span>Fix ring mode stacking and left-pane alignment</li>
+        <li><span class="date">2026-08-03</span><span class="sha">44fca93</span>Refine clock face UI, add battery &amp; weekend ring modes</li>
+        <li><span class="date">2026-08-03</span><span class="sha">3175295</span>Initial release: minimal Apple-style clock widget</li>
+      </ul>
+    </section>
+
     <footer>
       Open source on <a href="https://github.com/rijan-poudel/apple-clock-Widget">GitHub</a> · made for Übersicht
     </footer>
   </div>
+
+  <script>
+    function copyText(text) {
+      return new Promise((resolve, reject) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(resolve, reject);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.opacity = "0";
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand("copy"); resolve(); }
+          catch (e) { reject(e); }
+          document.body.removeChild(ta);
+        }
+      });
+    }
+    document.querySelectorAll(".copy").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const code = document.getElementById(btn.dataset.target);
+        if (!code) return;
+        copyText(code.innerText)
+          .then(() => {
+            const original = btn.textContent;
+            btn.textContent = "Copied!";
+            btn.classList.add("copied");
+            setTimeout(() => { btn.textContent = original; btn.classList.remove("copied"); }, 1600);
+          })
+          .catch(() => {});
+      });
+    });
+  </script>
 </body>
 </html>
