@@ -3,237 +3,489 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clacky — a digital watch for Übersicht</title>
-  <meta name="description" content="Clacky is a minimal Apple-inspired desktop watch widget for Übersicht with a live progress ring." />
+  <title>Clacky — a live watch face for Übersicht</title>
+  <meta name="description" content="Clacky is a minimal desktop watch widget for Übersicht with a live progress ring." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕐</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ring: #4f9dd8;
-      --card: rgba(26, 27, 30, .92);
-      --text: #eef1f5;
-      --muted: #9aa3ad;
+      --void: #0a0b0d;
+      --ink: #f3f1ec;
+      --ink-dim: #90959e;
+      --line: rgba(255, 255, 255, .09);
+      --accent: #9fc1e0;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      --m-battery: #4f9dd8;
+      --m-second: #7fd1a9;
+      --m-year: #d8a64f;
+      --m-weekend: #b57fd1;
+      --m-color: #f11825;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: var(--sans);
+      color: var(--ink);
       background: radial-gradient(circle at 22% 8%, #46536b 0, #262d38 28%, transparent 55%),
                   radial-gradient(circle at 88% 90%, #32242c 0, #10141a 34%, transparent 58%),
-                  #090c11;
-      padding: 56px 24px 80px;
+                  var(--void);
+      min-height: 100vh;
     }
-    .wrap { max-width: 720px; width: 100%; }
-    header { text-align: center; margin-bottom: 48px; }
-    h1 { font-size: 56px; font-weight: 800; letter-spacing: -1.5px; }
-    .tag { color: var(--muted); font-size: 18px; margin-top: 10px; }
-    .ver { margin-top: 14px; color: var(--muted); font-size: 13px; }
-    .ver code { background: #161c23; padding: 2px 8px; border-radius: 6px; }
+    a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(159, 193, 224, .35); }
+    a:hover { border-bottom-color: var(--accent); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+    code { font-family: var(--mono); }
 
-    /* Mini widget mock */
-    .mock {
-      width: 340px;
-      margin: 32px auto 0;
-      padding: 14px;
+    .wrap { max-width: 700px; margin: 0 auto; padding: 64px 24px 72px; }
+
+    /* ---------- Hero ---------- */
+    .hero { text-align: center; margin-bottom: 64px; }
+    .hero .kicker {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--ink-dim);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    h1 {
+      font-family: var(--mono);
+      font-size: clamp(40px, 9vw, 64px);
+      font-weight: 700;
+      letter-spacing: -2px;
+    }
+    .tag { color: var(--ink-dim); font-size: 16px; margin-top: 12px; }
+    .rev {
+      display: inline-block;
+      margin-top: 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-dim);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 4px 14px;
+    }
+    .rev b { color: var(--ink); font-weight: 500; }
+
+    .live-note {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-dim);
+      margin-top: 18px;
+      letter-spacing: .5px;
+    }
+    .live-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--m-second); margin-right: 7px; vertical-align: 1px; box-shadow: 0 0 6px var(--m-second); }
+
+    /* ---------- The real widget face ---------- */
+    .watch-stage { width: min(100%, 430px); margin: 40px auto 0; }
+    @media (max-width: 520px) {
+      .watch-stage { height: 131px; overflow: hidden; }
+      .watch { transform: scale(.72); transform-origin: top center; }
+    }
+    .watch {
+      width: 430px;
+      height: 182px;
+      position: relative;
+      display: flex;
+      padding: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .10);
+      border-radius: 40px;
+      background: linear-gradient(135deg, rgba(26, 27, 30, .88), rgba(7, 8, 10, .92) 62%);
+      -webkit-backdrop-filter: blur(30px) saturate(135%);
+      backdrop-filter: blur(30px) saturate(135%);
+      box-shadow: 0 24px 56px rgba(0, 0, 0, .38), 0 5px 16px rgba(0, 0, 0, .20), inset 0 1px 0 rgba(255, 255, 255, .09);
+      font-family: var(--sans);
+      color: #fff;
+      --pane: #26536a;
+      --ring: #a8a8a8;
+    }
+    .watch::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 52px;
+      width: 128px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent);
+      pointer-events: none;
+    }
+    .left-pane {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 16px 22px 26px 26px;
+    }
+    .date { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+    .date-week { color: rgba(255, 255, 255, .6); font-size: 12px; font-weight: 700; letter-spacing: .4px; }
+    .date-day { color: rgba(255, 255, 255, .85); font-size: 12px; font-weight: 700; letter-spacing: .4px; }
+    .time-row { display: flex; align-items: flex-end; }
+    .time {
+      color: #fff;
+      font-size: 72px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -3px;
+      line-height: .92;
+      background: linear-gradient(180deg, #fff 15%, rgba(255, 255, 255, .76));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .colon {
+      display: inline-block;
+      margin: 0 3px;
+      letter-spacing: 0;
+      background: none;
+      -webkit-text-fill-color: #fff;
+      transform: translateY(-6px);
+    }
+    .right-pane {
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 18px;
-      border: 1px solid rgba(255, 255, 255, .1);
-      border-radius: 28px;
-      background: linear-gradient(135deg, rgba(26, 27, 30, .92), rgba(7, 8, 10, .94) 62%);
-      box-shadow: 0 24px 56px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .09);
+      justify-content: center;
+      width: 150px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 32px;
+      background: radial-gradient(circle at 28% 8%, rgba(255, 255, 255, .11), transparent 43%),
+                  linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black));
+      box-shadow: 0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent),
+                  inset 0 1px 0 rgba(255, 255, 255, .12),
+                  inset 0 -12px 24px rgba(0, 0, 0, .22),
+                  inset 0 0 0 1px rgba(255, 255, 255, .05);
     }
-    .mock .left { flex: 1; padding-left: 10px; text-align: center; }
-    .mock .date { color: rgba(255, 255, 255, .75); font-size: 11px; font-weight: 700; letter-spacing: .4px; margin-bottom: 6px; }
-    .mock .time { font-size: 46px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -2px; }
-    .ring { position: relative; width: 104px; height: 104px; flex: none; }
-    .ring svg { width: 104px; height: 104px; transform: rotate(-90deg); }
-    .ring circle { fill: none; stroke-width: 7; }
-    .ring .bg { stroke: rgba(255, 255, 255, .12); }
-    .ring .fg { stroke: var(--ring); stroke-linecap: round; stroke-dasharray: 283; stroke-dashoffset: 57; filter: drop-shadow(0 0 6px rgba(79, 157, 216, .6)); }
-    .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .val { font-size: 20px; font-weight: 600; }
-    .unit { font-size: 8px; letter-spacing: 1.1px; color: rgba(255, 255, 255, .62); margin-top: 2px; }
-
-    section { margin-bottom: 40px; }
-    h2 { font-size: 20px; font-weight: 700; margin-bottom: 14px; }
-    p { color: #c6ccd4; line-height: 1.65; }
-    a { color: var(--ring); }
-    ul { list-style: none; }
-    ul li { color: #c6ccd4; padding: 6px 0 6px 22px; position: relative; line-height: 1.5; }
-    ul li::before { content: "●"; position: absolute; left: 2px; top: 8px; font-size: 8px; color: var(--ring); }
-
-    /* Mode showcase */
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-    .scard {
-      background: rgba(255, 255, 255, .03);
-      border: 1px solid rgba(255, 255, 255, .08);
-      border-radius: 16px;
-      padding: 20px 16px;
-      text-align: center;
+    .progress-svg { width: 112px; height: 112px; transform: rotate(-90deg); }
+    .progress-bg { fill: none; stroke: rgba(255, 255, 255, .1); stroke-width: 6; }
+    .progress-bar {
+      fill: none;
+      stroke: var(--ring, #a8a8a8);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      filter: drop-shadow(0 0 5px color-mix(in srgb, var(--ring, #a8a8a8) 40%, transparent));
+      transition: stroke-dashoffset .28s linear;
     }
-    .scard .ring { width: 76px; height: 76px; margin: 0 auto 10px; }
-    .scard .ring svg { width: 76px; height: 76px; }
-    .scard .ring circle { stroke-width: 8; }
-    .scard .val { font-size: 15px; }
-    .scard .unit { font-size: 7px; }
-    .sname { font-weight: 700; margin-bottom: 4px; }
-    .sdesc { color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+    @media (prefers-reduced-motion: reduce) { .progress-bar { transition: none; } }
+    .progress-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; pointer-events: none; }
+    .progress-content-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; animation: valuePop .35s cubic-bezier(.2, .9, .25, 1); }
+    .progress-value { color: #fff; font-size: 28px; font-weight: 500; line-height: 1; letter-spacing: -1px; }
+    .progress-unit { margin-top: 5px; color: rgba(255, 255, 255, .62); font-size: 7px; font-weight: 650; letter-spacing: 1.1px; }
+    @keyframes valuePop { from { opacity: 0; transform: translateY(5px) scale(.9); } to { opacity: 1; transform: none; } }
 
-    /* Commands */
-    .cmd { display: flex; align-items: center; gap: 10px; background: #10151b; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 14px 16px; }
-    .cmd .prompt { color: var(--ring); font-weight: 700; flex: none; }
-    .cmd code { white-space: nowrap; overflow-x: auto; flex: 1; font-size: 14px; }
+
+    /* ---------- Manual rows ---------- */
+    .manual-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 32px;
+      padding: 30px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .manual-row:first-of-type { border-top: 1px solid var(--line); }
+    .manual-row .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--ink-dim);
+      padding-top: 3px;
+    }
+    .manual-row .label::before { content: "["; color: var(--line); }
+    .manual-row .label::after { content: "]"; color: var(--line); }
+    .manual-row .body p { color: #c6ccd4; line-height: 1.7; font-size: 15px; }
+    .manual-row .body p + p { margin-top: 12px; }
+    @media (max-width: 560px) {
+      .manual-row { grid-template-columns: 1fr; gap: 10px; }
+    }
+
+    /* ---------- Dial strip (ring modes) ---------- */
+    .dials { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px 20px; padding-top: 6px; }
+    .dial { width: 128px; text-align: center; }
+    .dial .ring { position: relative; width: 72px; height: 72px; margin: 0 auto 12px; flex: none; }
+    .dial .ring svg { width: 72px; height: 72px; transform: rotate(-90deg); }
+    .dial .ring circle { fill: none; stroke-width: 8; }
+    .dial .ring .bg { stroke: rgba(255, 255, 255, .1); }
+    .dial .ring .fg { stroke: var(--m-second); stroke-linecap: round; stroke-dasharray: 283; }
+    .dial .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .dial .val { font-family: var(--mono); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .dial .unit { font-family: var(--mono); font-size: 7px; letter-spacing: 1.4px; color: var(--ink-dim); margin-top: 3px; }
+    .dial .name { font-family: var(--mono); font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+    .dial .desc { color: var(--ink-dim); font-size: 12px; line-height: 1.55; }
+
+    /* ---------- Terminal blocks ---------- */
+    .term { background: #101317; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .term-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+    .term-bar span { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .term-bar span:nth-child(1) { background: var(--m-battery); }
+    .term-bar span:nth-child(2) { background: var(--m-year); }
+    .term-bar span:nth-child(3) { background: var(--m-second); }
+    .term-row { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+    .term-row .prompt { color: var(--accent); font-family: var(--mono); font-weight: 700; flex: none; }
+    .term-row code { white-space: nowrap; overflow-x: auto; flex: 1; font-size: 13.5px; }
     .copy {
       flex: none;
-      background: rgba(255, 255, 255, .08);
-      border: 1px solid rgba(255, 255, 255, .12);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 12px;
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 11.5px;
       font-weight: 600;
       padding: 6px 12px;
       cursor: pointer;
       transition: background .15s ease;
     }
-    .copy:hover { background: rgba(255, 255, 255, .16); }
-    .copy.copied { background: #2f7d46; border-color: #2f7d46; }
-    code { font-family: "SF Mono", Menlo, monospace; }
-    p code, li code, ol code { background: #161c23; padding: 2px 6px; border-radius: 6px; font-size: .9em; }
+    .copy:hover { background: rgba(255, 255, 255, .14); }
+    .copy.copied { background: #2f7d46; border-color: #2f7d46; color: #fff; }
 
-    .card {
-      background: rgba(255, 255, 255, .03);
-      border: 1px solid rgba(255, 255, 255, .08);
-      border-radius: 16px;
-      padding: 20px 22px;
-      margin-top: 14px;
+    .steps-card { margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; }
+    .steps-card h3 { font-family: var(--mono); font-size: 13px; letter-spacing: .5px; margin-bottom: 12px; color: var(--ink); }
+    .steps-card ol { margin: 0; padding-left: 20px; color: #c6ccd4; line-height: 1.85; font-size: 14.5px; }
+    .note { color: var(--ink-dim); font-size: 13px; margin-top: 12px; line-height: 1.6; }
+    p code, li code { background: rgba(255, 255, 255, .06); padding: 2px 6px; border-radius: 5px; font-size: .88em; border: 1px solid var(--line); }
+
+    /* ---------- Changelog (log style) ---------- */
+    .log { font-family: var(--mono); font-size: 12.5px; }
+    .log-line { display: grid; grid-template-columns: 82px 70px 1fr; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+    .log-line:last-child { border-bottom: none; }
+    .log-line .d { color: var(--ink-dim); }
+    .log-line .sha { color: var(--accent); }
+    .log-line .msg { color: #c6ccd4; }
+    @media (max-width: 560px) {
+      .log-line { grid-template-columns: 1fr; gap: 3px; }
+      .log-line .d, .log-line .sha { display: inline-block; margin-right: 8px; }
     }
-    .card h3 { font-size: 15px; margin-bottom: 10px; }
-    .card ol { margin: 0; padding-left: 20px; color: #c6ccd4; line-height: 1.8; }
-    .note { color: var(--muted); font-size: 14px; margin-top: 10px; }
 
-    /* Changelog */
-    .changelog { list-style: none; }
-    .changelog li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.06); line-height: 1.5; }
-    .changelog li:last-child { border-bottom: none; }
-    .changelog .date { color: var(--muted); font-size: 12px; display: inline-block; width: 92px; }
-    .changelog .sha { color: var(--ring); font-size: 12px; margin-right: 10px; }
+    footer {
+      color: var(--ink-dim);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 56px;
+      letter-spacing: .3px;
+    }
 
-    footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 48px; }
+    h2 { display: none; } /* replaced by .label in manual rows, kept for a11y via aria */
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
+
+    <header class="hero">
+      <div class="kicker">Desktop watch · Übersicht widget</div>
       <h1>Clacky</h1>
-      <p class="tag">A minimal desktop watch for Übersicht</p>
-      <div class="ver">latest <code>ac766e8</code> · Aug 3, 2026</div>
-      <div class="mock" aria-hidden="true">
-        <div class="left">
-          <div class="date">MONDAY · AUGUST 3</div>
-          <div class="time">10:48</div>
-        </div>
-        <div class="ring">
-          <svg viewBox="0 0 112 112">
-            <circle class="bg" cx="56" cy="56" r="45" />
-            <circle class="fg" cx="56" cy="56" r="45" />
-          </svg>
-          <div class="center"><span class="val">80%</span><span class="unit">BATTERY</span></div>
+      <p class="tag">A live watch face for your desktop.</p>
+      <div class="rev">rev <b>ac766e8</b> · synced Aug 3, 2026</div>
+
+      <div class="watch-stage">
+        <div class="watch" aria-hidden="true">
+          <div class="left-pane">
+            <div class="date">
+              <span class="date-week" id="demo-week">MONDAY</span>
+              <span class="date-day" id="demo-day">AUGUST 3</span>
+            </div>
+            <div class="time-row">
+              <div class="time"><span id="demo-h">10</span><span class="colon">:</span><span id="demo-m">48</span></div>
+            </div>
+          </div>
+          <div class="right-pane">
+            <svg class="progress-svg" viewBox="0 0 112 112">
+              <circle class="progress-bg" cx="56" cy="56" r="45" />
+              <circle class="progress-bar" id="demo-fg" cx="56" cy="56" r="45" />
+            </svg>
+            <span class="progress-content">
+              <div class="progress-content-inner" id="demo-inner">
+                <span class="progress-value" id="demo-value">80%</span>
+                <span class="progress-unit" id="demo-unit">BATTERY</span>
+              </div>
+            </span>
+          </div>
         </div>
       </div>
+      <p class="live-note"><span class="live-dot"></span>this is the real face — it's running in your browser</p>
     </header>
 
-    <section>
-      <h2>What is it?</h2>
-      <p>A restrained Apple-inspired watch for your desktop: one glass card, a large local time display, and a progress ring that doubles as a live complication. Click the ring to cycle modes, right-click to pick the ring color with the native macOS eyedropper.</p>
+    <section class="manual-row">
+      <div class="label" aria-hidden="true">OVERVIEW</div>
+      <div class="body">
+        <h2>What is it</h2>
+        <p>One glass face on your desktop: the local time, and a ring that doubles as a live gauge — it's ticking above, in real time, right now. Click the ring to switch what it's tracking. Right-click to pick its color with the system eyedropper.</p>
+      </div>
     </section>
 
-    <section>
-      <h2>Ring modes</h2>
-      <div class="grid">
-        <div class="scard">
-          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#4f9dd8;stroke-dashoffset:57"/></svg><div class="center"><span class="val">80%</span><span class="unit">BATTERY</span></div></div>
-          <div class="sname">Battery</div>
-          <div class="sdesc">Live battery level, shows CHARGING when plugged in.</div>
-        </div>
-        <div class="scard">
-          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#7fd1a9;stroke-dashoffset:85"/></svg><div class="center"><span class="val">42s</span><span class="unit">SECOND</span></div></div>
-          <div class="sname">Second</div>
-          <div class="sdesc">Ticking seconds and progress through the minute.</div>
-        </div>
-        <div class="scard">
-          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#d8a64f;stroke-dashoffset:116"/></svg><div class="center"><span class="val">59%</span><span class="unit">YEAR</span></div></div>
-          <div class="sname">Year</div>
-          <div class="sdesc">Day of the year and progress through it.</div>
-        </div>
-        <div class="scard">
-          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#b57fd1;stroke-dashoffset:156"/></svg><div class="center"><span class="val">45%</span><span class="unit">WEEKEND</span></div></div>
-          <div class="sname">Weekend</div>
-          <div class="sdesc">Hours until Saturday, progress through the work week.</div>
-        </div>
-        <div class="scard">
-          <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:#f11825;stroke-dashoffset:0"/></svg><div class="center"><span class="val">F11825</span><span class="unit">COLOR</span></div></div>
-          <div class="sname">Color</div>
-          <div class="sdesc">Pick the ring color with the native macOS eyedropper.</div>
+    <section class="manual-row">
+      <div class="label" aria-hidden="true">RING MODES</div>
+      <div class="body">
+        <h2>Ring modes</h2>
+        <div class="dials">
+          <div class="dial">
+            <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:var(--m-battery);stroke-dashoffset:57"/></svg><div class="center"><span class="val">80%</span><span class="unit">BATTERY</span></div></div>
+            <div class="name">Battery</div>
+            <div class="desc">Tracks charge level. Reads CHARGING when plugged in.</div>
+          </div>
+          <div class="dial">
+            <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:var(--m-second);stroke-dashoffset:85"/></svg><div class="center"><span class="val">42s</span><span class="unit">SECOND</span></div></div>
+            <div class="name">Second</div>
+            <div class="desc">Ticks with the clock. Full lap every minute.</div>
+          </div>
+          <div class="dial">
+            <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:var(--m-year);stroke-dashoffset:116"/></svg><div class="center"><span class="val">59%</span><span class="unit">YEAR</span></div></div>
+            <div class="name">Year</div>
+            <div class="desc">Counts the day of the year. Fills as the year does.</div>
+          </div>
+          <div class="dial">
+            <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:var(--m-weekend);stroke-dashoffset:156"/></svg><div class="center"><span class="val">45%</span><span class="unit">WEEKEND</span></div></div>
+            <div class="name">Weekend</div>
+            <div class="desc">Counts down to Saturday. Fills through the work week.</div>
+          </div>
+          <div class="dial">
+            <div class="ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="45"/><circle class="fg" cx="56" cy="56" r="45" style="stroke:var(--m-color);stroke-dashoffset:0"/></svg><div class="center"><span class="val">F11825</span><span class="unit">COLOR</span></div></div>
+            <div class="name">Color</div>
+            <div class="desc">Pick any hex with the system eyedropper.</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section>
-      <h2>Install</h2>
-      <p>One command, no git needed. You need macOS and <a href="https://ubersicht.app">Übersicht</a> (free).</p>
-      <div class="cmd"><span class="prompt">$</span><code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/rijan-poudel/apple-clock-Widget/main/install.sh | sh</code><button class="copy" data-target="install-cmd">Copy</button></div>
-      <p class="note">Then click the Übersicht icon in the menu bar → <strong>Refresh</strong>, and enable <em>clacky</em> if it isn't on already.</p>
+    <section class="manual-row">
+      <div class="label" aria-hidden="true">INSTALL</div>
+      <div class="body">
+        <h2>Install</h2>
+        <p>One command. No git required. Needs macOS and <a href="https://ubersicht.app">Übersicht</a> (free).</p>
+        <div class="term" style="margin-top: 14px;">
+          <div class="term-bar"><span></span><span></span><span></span></div>
+          <div class="term-row"><span class="prompt">$</span><code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/rijan-poudel/apple-clock-Widget/main/install.sh | sh</code><button class="copy" data-target="install-cmd">Copy</button></div>
+        </div>
+        <p class="note">Open the Übersicht menu-bar icon → <strong>Refresh</strong>, then switch <em>clacky</em> on if it isn't already.</p>
 
-      <div class="card">
-        <h3>Manual install (no terminal)</h3>
-        <ol>
-          <li><a href="https://github.com/rijan-poudel/apple-clock-Widget/archive/refs/heads/main.zip">Download the ZIP</a></li>
-          <li>Unzip it and rename the folder to <code>clacky.widget</code></li>
-          <li>In Übersicht's menu bar choose <strong>Open Widgets Folder</strong> and move the folder inside</li>
-          <li>Click the Übersicht icon → <strong>Refresh</strong></li>
-        </ol>
-        <p class="note">Manual installs don't get automatic updates — the one-liner does.</p>
+        <div class="steps-card">
+          <h3>Prefer no terminal?</h3>
+          <ol>
+            <li><a href="https://github.com/rijan-poudel/apple-clock-Widget/archive/refs/heads/main.zip">Download the ZIP</a></li>
+            <li>Unzip it, rename the folder to <code>clacky.widget</code></li>
+            <li>In Übersicht's menu bar, choose <strong>Open Widgets Folder</strong> and drop it in</li>
+            <li>Refresh from the menu-bar icon</li>
+          </ol>
+          <p class="note">Manual installs stay put — no automatic updates.</p>
+        </div>
       </div>
     </section>
 
-    <section>
-      <h2>Clicking &amp; permissions</h2>
-      <p>For the ring to respond to clicks, give Übersicht <strong>Accessibility</strong> access (System Settings → Privacy &amp; Security) and enable its <strong>Interaction Shortcut</strong> in Übersicht's preferences.</p>
+    <section class="manual-row">
+      <div class="label" aria-hidden="true">PERMISSIONS</div>
+      <div class="body">
+        <h2>Clicks &amp; permissions</h2>
+        <p>Give Übersicht <strong>Accessibility</strong> access (System Settings → Privacy &amp; Security), then turn on its <strong>Interaction Shortcut</strong> in Übersicht's own preferences. That's what lets the ring respond to clicks.</p>
+      </div>
     </section>
 
-    <section>
-      <h2>Automatic updates</h2>
-      <p>Installed via the command above, Clacky pulls the latest version from GitHub whenever Übersicht loads it (at most once per hour). Your position, mode, and color are never overwritten.</p>
+    <section class="manual-row">
+      <div class="label" aria-hidden="true">UPDATES</div>
+      <div class="body">
+        <h2>Automatic updates</h2>
+        <p>Installed with the command above, Clacky checks GitHub for a newer build every time Übersicht loads it — at most once an hour. Your position, mode, and color always survive the update.</p>
+      </div>
     </section>
 
-    <section>
-      <h2>Customize</h2>
-      <p>Open <code>index.jsx</code> in the widget folder and edit the <code>config</code> object to change 12/24-hour display, accent color, which modes are enabled, the default mode, or to turn off auto-updates (<code>autoUpdate: false</code>).</p>
+    <section class="manual-row">
+      <div class="label" aria-hidden="true">CONFIGURE</div>
+      <div class="body">
+        <h2>Customize</h2>
+        <p>Open <code>index.jsx</code> inside the widget folder. The <code>config</code> object at the top controls the clock format (12 or 24-hour), the accent color, which modes are on, the default mode, and <code>autoUpdate: false</code> if you'd rather manage updates yourself.</p>
+      </div>
     </section>
 
-    <section>
-      <h2>Changelog</h2>
-      <ul class="changelog">
-        <li><span class="date">2026-08-03</span><span class="sha">ac766e8</span>Add Clacky landing page</li>
-        <li><span class="date">2026-08-03</span><span class="sha">589f317</span>Rename widget to clacky</li>
-        <li><span class="date">2026-08-03</span><span class="sha">dacdbc6</span>Add one-command installer with automatic updates</li>
-        <li><span class="date">2026-08-03</span><span class="sha">59cb9e1</span>Persist and restore last ring mode across reloads</li>
-        <li><span class="date">2026-08-03</span><span class="sha">7f573a9</span>Fix ring mode stacking and left-pane alignment</li>
-        <li><span class="date">2026-08-03</span><span class="sha">44fca93</span>Refine clock face UI, add battery &amp; weekend ring modes</li>
-        <li><span class="date">2026-08-03</span><span class="sha">3175295</span>Initial release: minimal Apple-style clock widget</li>
-      </ul>
+    <section class="manual-row" style="border-bottom: none;">
+      <div class="label" aria-hidden="true">CHANGELOG</div>
+      <div class="body">
+        <h2>Changelog</h2>
+        <div class="log">
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">ac766e8</span><span class="msg">Add Clacky landing page</span></div>
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">589f317</span><span class="msg">Rename widget to clacky</span></div>
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">dacdbc6</span><span class="msg">Add one-command installer with automatic updates</span></div>
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">59cb9e1</span><span class="msg">Persist and restore last ring mode across reloads</span></div>
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">7f573a9</span><span class="msg">Fix ring mode stacking and left-pane alignment</span></div>
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">44fca93</span><span class="msg">Refine clock face UI, add battery &amp; weekend ring modes</span></div>
+          <div class="log-line"><span class="d">2026-08-03</span><span class="sha">3175295</span><span class="msg">Initial release: minimal Apple-style clock widget</span></div>
+        </div>
+      </div>
     </section>
 
     <footer>
-      Open source on <a href="https://github.com/rijan-poudel/apple-clock-Widget">GitHub</a> · made for Übersicht
+      open source on <a href="https://github.com/rijan-poudel/apple-clock-Widget">github</a> — built for übersicht
     </footer>
   </div>
 
   <script>
+    // Live hero — the real clock face, ticking in the browser.
+    function pad(n) { return n.toString().padStart(2, "0"); }
+
+    const C = 283;
+    const timeH = document.getElementById("demo-h");
+    const timeM = document.getElementById("demo-m");
+    const dateWeek = document.getElementById("demo-week");
+    const dateDay = document.getElementById("demo-day");
+    const fg = document.getElementById("demo-fg");
+    const valueEl = document.getElementById("demo-value");
+    const unitEl = document.getElementById("demo-unit");
+    const inner = document.getElementById("demo-inner");
+    const watch = document.querySelector(".watch");
+
+    const modes = [
+      { kind: "battery", color: "#4f9dd8", unit: "BATTERY" },
+      { kind: "second", color: "#7fd1a9", unit: "SECOND" },
+      { kind: "year", color: "#d8a64f", unit: "YEAR" },
+      { kind: "weekend", color: "#b57fd1", unit: "WEEKEND" },
+      { kind: "color", color: "#f11825", unit: "COLOR" },
+    ];
+    let modeIndex = 0;
+    let lastSwitch = Date.now();
+
+    function gauge(now, kind) {
+      const s = now.getSeconds();
+      const start = new Date(now.getFullYear(), 0, 0);
+      const doy = Math.min(366, Math.floor((now - start) / 86400000));
+      switch (kind) {
+        case "battery": return { v: "80%", p: 0.8 };
+        case "second": return { v: s + "s", p: s / 60 };
+        case "year": return { v: Math.round((doy / 365) * 100) + "%", p: doy / 365 };
+        case "weekend": return { v: "45%", p: 0.45 };
+        case "color": return { v: "F11825", p: 1 };
+      }
+    }
+
+    function tick() {
+      const now = new Date();
+      timeH.textContent = pad(now.getHours());
+      timeM.textContent = pad(now.getMinutes());
+      dateWeek.textContent = now.toLocaleDateString(undefined, { weekday: "long" }).toUpperCase();
+      dateDay.textContent = now.toLocaleDateString(undefined, { month: "long" }).toUpperCase() + " " + now.getDate();
+
+      if (Date.now() - lastSwitch > 3000) {
+        modeIndex = (modeIndex + 1) % modes.length;
+        lastSwitch = Date.now();
+        inner.style.animation = "none";
+        void inner.offsetWidth;
+        inner.style.animation = "";
+      }
+
+      const m = modes[modeIndex];
+      const g = gauge(now, m.kind);
+      watch.style.setProperty("--ring", m.color);
+      fg.style.strokeDashoffset = (C * (1 - g.p)).toFixed(1);
+      valueEl.textContent = g.v;
+      unitEl.textContent = m.unit;
+    }
+    tick();
+    setInterval(tick, 250);
+
     function copyText(text) {
       return new Promise((resolve, reject) => {
         if (navigator.clipboard && window.isSecureContext) {
