@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minimal Digital Watch — Preview</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; }
+      body { display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 24% 10%, #586576 0, #2a323e 26%, transparent 55%), radial-gradient(circle at 85% 82%, #322228 0, #151920 31%, transparent 58%), #090c11; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; color: white; user-select: none; -webkit-font-smoothing: antialiased; }
+      .watch-card { position: relative; display: flex; width: 430px; height: 182px; padding: 8px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 40px; background: linear-gradient(135deg, #1a1b1ee0, #07080aeb 62%); -webkit-backdrop-filter: blur(30px) saturate(135%); backdrop-filter: blur(30px) saturate(135%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; }
+      .watch-card::before { content: ""; position: absolute; top: 0; left: 52px; width: 128px; height: 1px; background: linear-gradient(90deg, transparent, #ffffff38, transparent); }
+      .left-pane { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; padding: 3px 18px 2px 25px; }
+      .date { margin-bottom: 10px; color: #ffffff7a; font-size: 11px; font-weight: 520; letter-spacing: .1px; }
+      .time { color: #fff; font-size: 64px; font-weight: 300; font-variant-numeric: tabular-nums; letter-spacing: -3.5px; line-height: .92; }
+      .colon { color: #ffffffd1; }
+      .location { display: flex; align-items: center; gap: 7px; margin-top: 16px; color: #ffffff5c; font-size: 9px; font-weight: 650; letter-spacing: .35px; }
+      .live-dot { width: 5px; height: 5px; border-radius: 50%; background: #64d2ff; box-shadow: 0 0 8px #64d2ff99; }
+      .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 150px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 32px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, #26536adb, #0c2b3bf0); color: #fff; font-family: inherit; cursor: pointer; box-shadow: inset 0 1px 0 #ffffff14; transition: background .2s ease, transform .2s ease; }
+      .right-pane:hover { background: radial-gradient(circle at 28% 8%, #ffffff21, transparent 43%), linear-gradient(145deg, #2b5d76e0, #0e3143f5); }
+      .right-pane:active { transform: scale(.985); }
+      .progress-svg { width: 112px; height: 112px; transform: rotate(-90deg); }
+      .progress-bg { fill: none; stroke: #ffffff18; stroke-width: 6; }
+      .progress-bar { fill: none; stroke: #64d2ff; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 282.743; filter: drop-shadow(0 0 4px #64d2ff38); }
+      .progress-content { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+      .progress-value { color: #fff; font-size: 28px; font-weight: 400; line-height: 1; letter-spacing: -1px; }
+      .progress-unit { margin-top: 5px; color: #ffffff66; font-size: 7px; font-weight: 650; letter-spacing: .85px; }
+    </style>
+  </head>
+  <body>
+    <div class="watch-card">
+      <div class="left-pane">
+        <div id="date" class="date"></div>
+        <div class="time"><span id="hours"></span><span class="colon">:</span><span id="minutes"></span></div>
+        <div class="location"><span class="live-dot"></span><span id="location"></span></div>
+      </div>
+      <button id="progress-button" class="right-pane" type="button" aria-label="Change progress mode">
+        <svg class="progress-svg" viewBox="0 0 112 112"><circle class="progress-bg" cx="56" cy="56" r="45" /><circle id="progress" class="progress-bar" cx="56" cy="56" r="45" /></svg>
+        <span class="progress-content"><span id="progress-value" class="progress-value"></span><span id="progress-unit" class="progress-unit"></span></span>
+      </button>
+    </div>
+    <script>
+      const pad = (value) => String(value).padStart(2, "0");
+      const modes = ["minute", "hour", "day"];
+      const circumference = 2 * Math.PI * 45;
+      let modeIndex = 0;
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "LOCAL";
+      document.querySelector("#location").textContent = timeZone.split("/").pop().replaceAll("_", " ");
+      document.querySelector("#progress-button").addEventListener("click", () => {
+        modeIndex = (modeIndex + 1) % modes.length;
+      });
+      const update = () => {
+        const now = new Date();
+        const seconds = now.getSeconds() + now.getMilliseconds() / 1000;
+        const minutes = now.getMinutes() + seconds / 60;
+        const hours = now.getHours() + minutes / 60;
+        const mode = modes[modeIndex];
+        let progress;
+        let value;
+        let unit;
+        if (mode === "hour") {
+          progress = minutes / 60;
+          value = pad(now.getMinutes());
+          unit = "HOUR";
+        } else if (mode === "day") {
+          progress = hours / 24;
+          value = `${Math.floor(progress * 100)}%`;
+          unit = "DAY";
+        } else {
+          progress = seconds / 60;
+          value = pad(now.getSeconds());
+          unit = "MINUTE";
+        }
+        document.querySelector("#hours").textContent = pad(now.getHours());
+        document.querySelector("#minutes").textContent = pad(now.getMinutes());
+        document.querySelector("#date").textContent = `${now.toLocaleDateString(undefined, { weekday: "long" })}, ${now.toLocaleDateString(undefined, { month: "long" })} ${now.getDate()}`;
+        document.querySelector("#progress").style.strokeDashoffset = circumference * (1 - progress);
+        document.querySelector("#progress-value").textContent = value;
+        document.querySelector("#progress-unit").textContent = unit;
+        requestAnimationFrame(update);
+      };
+      update();
+    </script>
+  </body>
+</html>
