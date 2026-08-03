@@ -11,15 +11,13 @@
       .watch-card { position: relative; display: flex; width: 430px; height: 182px; padding: 8px; overflow: hidden; border: 1px solid #ffffff1a; border-radius: 40px; background: linear-gradient(135deg, #1a1b1ee0, #07080aeb 62%); -webkit-backdrop-filter: blur(30px) saturate(135%); backdrop-filter: blur(30px) saturate(135%); box-shadow: 0 24px 56px #00000061, 0 5px 16px #00000033, inset 0 1px 0 #ffffff17; cursor: grab; touch-action: none; }
       .watch-card:active { cursor: grabbing; }
       .watch-card::before { content: ""; position: absolute; top: 0; left: 52px; width: 128px; height: 1px; background: linear-gradient(90deg, transparent, #ffffff38, transparent); }
-      .left-pane { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; padding: 0 22px 0 26px; }
-      .date { display: flex; align-items: center; gap: 8px; margin-bottom: 13px; }
-      .accent-dot { flex: none; width: 6px; height: 6px; border-radius: 2px; background: var(--ring, #a8a8a8); box-shadow: 0 0 8px #a8a8a880; }
-      .date-week { color: #ffffff99; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
-      .date-sep { color: #ffffff59; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
-      .date-day { color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
+      .left-pane { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 16px 22px 26px 26px; }
+      .date { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+      .date-week { color: #ffffff99; font-size: 12px; font-weight: 700; letter-spacing: .4px; }
+      .date-day { color: #ffffffd9; font-size: 12px; font-weight: 700; letter-spacing: .4px; }
       .time-row { display: flex; align-items: flex-end; }
       .time { color: #fff; font-size: 72px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -3px; line-height: .92; background: linear-gradient(180deg, #fff 15%, #ffffffc2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-      .colon { color: #fff; }
+      .colon { display: inline-block; margin: 0 3px; letter-spacing: 0; background: none; -webkit-text-fill-color: #fff; transform: translateY(-6px); }
       .right-pane { position: relative; display: flex; align-items: center; justify-content: center; width: 150px; margin: 0; padding: 0; overflow: hidden; border: 1px solid #ffffff14; border-radius: 32px; outline: none; background: radial-gradient(circle at 28% 8%, #ffffff1c, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 86%, transparent), color-mix(in srgb, var(--pane) 38%, black)); color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent), inset 0 1px 0 #ffffff1f, inset 0 -12px 24px #00000038, inset 0 0 0 1px #ffffff0d; transition: background .2s ease, transform .2s ease, box-shadow .2s ease; }
       .right-pane:hover { background: radial-gradient(circle at 28% 8%, #ffffff21, transparent 43%), linear-gradient(145deg, color-mix(in srgb, var(--pane) 92%, white), color-mix(in srgb, var(--pane) 42%, black)); box-shadow: 0 12px 30px color-mix(in srgb, var(--pane) 46%, transparent), inset 0 1px 0 #ffffff29, inset 0 -12px 24px #00000033, inset 0 0 0 1px #ffffff12; }
       .right-pane:active { transform: scale(.985); }
@@ -37,7 +35,7 @@
   <body>
     <div class="watch-card">
       <div class="left-pane">
-        <div class="date"><span class="accent-dot"></span><span id="date-week" class="date-week"></span><span class="date-sep">·</span><span id="date-day" class="date-day"></span></div>
+        <div class="date"><span id="date-week" class="date-week"></span><span id="date-day" class="date-day"></span></div>
         <div class="time-row"><span id="hours" class="time"></span><span class="colon">:</span><span id="minutes" class="time"></span></div>
       </div>
       <button id="progress-button" class="right-pane" type="button" aria-label="Change progress mode">

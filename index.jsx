@@ -203,46 +203,31 @@ export const className = `
     display: flex;
     flex: 1;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
     min-width: 0;
-    padding: 0 22px 0 26px;
+    padding: 16px 22px 26px 26px;
   }
 
   .date {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 13px;
-  }
-
-  .accent-dot {
-    flex: none;
-    width: 6px;
-    height: 6px;
-    border-radius: 2px;
-    background: var(--ring, ${config.accent});
-    box-shadow: 0 0 8px rgba(168, 168, 168, .5);
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
   }
 
   .date-week {
     color: rgba(255, 255, 255, .6);
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 1.2px;
-  }
-
-  .date-sep {
-    color: rgba(255, 255, 255, .35);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: .4px;
   }
 
   .date-day {
-    color: #fff;
-    font-size: 10px;
+    color: rgba(255, 255, 255, .85);
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 1.2px;
+    letter-spacing: .4px;
   }
 
   .time-row {
@@ -264,7 +249,12 @@ export const className = `
   }
 
   .colon {
-    color: #fff;
+    display: inline-block;
+    margin: 0 3px;
+    letter-spacing: 0;
+    background: none;
+    -webkit-text-fill-color: #fff;
+    transform: translateY(-6px);
   }
 
   .period {
@@ -499,9 +489,7 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
     >
       <div className="left-pane">
         <div className="date">
-          <span className="accent-dot" aria-hidden="true" />
           <span className="date-week">{weekday.toUpperCase()}</span>
-          <span className="date-sep" aria-hidden="true">·</span>
           <span className="date-day">{month.toUpperCase()} {date.getDate()}</span>
         </div>
         <div className="time-row">
