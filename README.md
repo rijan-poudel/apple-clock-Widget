@@ -1,6 +1,6 @@
-# Minimal Digital Watch for Übersicht
+# Clacky
 
-A restrained Apple-inspired desktop watch with one glass card, a large local time display, and a functional progress complication.
+A restrained Apple-inspired desktop watch for Übersicht with one glass card, a large local time display, and a functional progress complication.
 
 ## Progress modes
 
@@ -29,8 +29,8 @@ If the widget does not appear after installing, click the Übersicht icon in the
 ### Manual install
 
 1. In Übersicht, choose **Open Widgets Folder** from the menu bar.
-2. Copy the entire `apple-watch-clock.widget` folder into that folder.
-3. Enable **apple-watch-clock** if it is not enabled automatically.
+2. Copy the entire `clacky.widget` folder into that folder.
+3. Enable **clacky** if it is not enabled automatically.
 
 > Note: a manual copy has no automatic updates. Only the `curl` install gets them.
 

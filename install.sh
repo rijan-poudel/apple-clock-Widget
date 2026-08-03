@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install or update the Apple Watch Clock widget for Übersicht.
+# Install or update the Clacky widget for Übersicht.
 #
 # Install:    curl -fsSL https://raw.githubusercontent.com/rijan-poudel/apple-clock-Widget/main/install.sh | sh
 # Update:     run the exact same command again.
@@ -10,7 +10,7 @@
 set -eu
 
 REPO_URL="https://github.com/rijan-poudel/apple-clock-Widget.git"
-NAME="apple-watch-clock"
+NAME="clacky"
 WIDGET_DIR="${WIDGETS_DIR:-$HOME/Library/Application Support/Übersicht/widgets}"
 TARGET="$WIDGET_DIR/$NAME.widget"
 
