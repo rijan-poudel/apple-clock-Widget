@@ -47,11 +47,11 @@ const folder = getFolder();
 
 const quoteShell = (value) => `'${String(value).replace(/'/g, `'\\''`)}'`;
 
-const saveConfig = (offsetX, offsetY, paneColor) => {
+const saveConfig = (offsetX, offsetY, paneColor, modeIndex) => {
   if (!folder) return;
   const tmp = `${folder}/position.json.tmp`;
   const file = `${folder}/position.json`;
-  const json = JSON.stringify({ offsetX, offsetY, paneColor });
+  const json = JSON.stringify({ offsetX, offsetY, paneColor, modeIndex });
   const command = [
     `mkdir -p ${quoteShell(folder)}`,
     `cat > ${quoteShell(tmp)} <<'POEOF'`,
@@ -62,7 +62,7 @@ const saveConfig = (offsetX, offsetY, paneColor) => {
   run(command).catch(() => {});
 };
 
-const launchEyedropper = (dispatch, ox, oy) => {
+const launchEyedropper = (dispatch, ox, oy, modeIndex) => {
   if (!folder) return;
   run(`${quoteShell(folder)}/eyedropper 2>/dev/null`)
     .then((out) => {
@@ -70,7 +70,7 @@ const launchEyedropper = (dispatch, ox, oy) => {
       if (/^#[0-9a-fA-F]{6}$/.test(firstLine)) {
         const next = firstLine.toLowerCase();
         dispatch({ type: "SET_COLOR", color: next });
-        saveConfig(ox, oy, next);
+        saveConfig(ox, oy, next, modeIndex);
       }
     })
     .catch(() => {});
@@ -104,7 +104,7 @@ export const init = (dispatch) => {
   if (!folder) return;
   run(`cat ${quoteShell(folder)}/position.json 2>/dev/null || echo "{}"`)
     .then((output) => {
-      let restored = { offsetX: 0, offsetY: 0, paneColor: DEFAULT_PANE_COLOR };
+      let restored = { offsetX: 0, offsetY: 0, paneColor: DEFAULT_PANE_COLOR, modeIndex: defaultModeIndex };
       try {
         const saved = JSON.parse(output);
         restored = {
@@ -113,11 +113,15 @@ export const init = (dispatch) => {
           paneColor: /^#[0-9a-fA-F]{6}$/.test(saved.paneColor)
             ? saved.paneColor.toLowerCase()
             : DEFAULT_PANE_COLOR,
+          modeIndex:
+            Number.isInteger(saved.modeIndex) && saved.modeIndex >= 0 && saved.modeIndex < modes.length
+              ? saved.modeIndex
+              : defaultModeIndex,
         };
       } catch (e) {}
       dispatch({ type: "RESTORE", ...restored });
       if (config.autoLaunchEyedropper) {
-        launchEyedropper(dispatch, restored.offsetX, restored.offsetY);
+        launchEyedropper(dispatch, restored.offsetX, restored.offsetY, restored.modeIndex);
       }
     })
     .catch(() => {});
@@ -133,6 +137,7 @@ export const updateState = (event, previousState = initialState) => {
       offsetX: event.offsetX,
       offsetY: event.offsetY,
       paneColor: event.paneColor,
+      modeIndex: event.modeIndex,
     };
   }
   if (event.type === "DRAG") {
@@ -460,7 +465,7 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
     const finalDrag = lastDrag;
     dragStart = null;
     lastDrag = null;
-    if (finalDrag) saveConfig(finalDrag.offsetX, finalDrag.offsetY, paneColor);
+    if (finalDrag) saveConfig(finalDrag.offsetX, finalDrag.offsetY, paneColor, modeIndex);
     setTimeout(() => {
       suppressClick = false;
     }, 0);
@@ -476,7 +481,7 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
   };
 
   const openEyedropper = () => {
-    launchEyedropper(dispatch, offsetX, offsetY);
+    launchEyedropper(dispatch, offsetX, offsetY, modeIndex);
   };
 
   return (
@@ -511,7 +516,9 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
             suppressClick = false;
             return;
           }
+          const next = (safeModeIndex + 1) % modes.length;
           dispatch({ type: "CYCLE_MODE" });
+          saveConfig(offsetX, offsetY, paneColor, next);
         }}
         onContextMenu={(e) => {
           e.preventDefault();
