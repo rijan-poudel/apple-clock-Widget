@@ -205,15 +205,14 @@ export const className = `
     flex-direction: column;
     justify-content: center;
     min-width: 0;
-    padding: 6px 22px 2px 26px;
+    padding: 0 22px 0 26px;
   }
 
   .date {
     display: flex;
     align-items: center;
-    gap: 9px;
-    margin-bottom: 14px;
-    min-height: 12px;
+    gap: 8px;
+    margin-bottom: 13px;
   }
 
   .accent-dot {
@@ -258,6 +257,10 @@ export const className = `
     font-variant-numeric: tabular-nums;
     letter-spacing: -3px;
     line-height: .92;
+    background: linear-gradient(180deg, #fff 15%, rgba(255, 255, 255, .76));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .colon {
@@ -295,8 +298,12 @@ export const className = `
     font-family: inherit;
     pointer-events: auto;
     cursor: pointer;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
-    transition: background .2s ease, transform .2s ease;
+    box-shadow:
+      0 10px 24px color-mix(in srgb, var(--pane) 30%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, .12),
+      inset 0 -12px 24px rgba(0, 0, 0, .22),
+      inset 0 0 0 1px rgba(255, 255, 255, .05);
+    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
   }
 
   .right-pane:hover {
@@ -307,6 +314,11 @@ export const className = `
         color-mix(in srgb, var(--pane) 92%, white),
         color-mix(in srgb, var(--pane) 42%, black)
       );
+    box-shadow:
+      0 12px 30px color-mix(in srgb, var(--pane) 46%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, .16),
+      inset 0 -12px 24px rgba(0, 0, 0, .2),
+      inset 0 0 0 1px rgba(255, 255, 255, .07);
   }
 
   .right-pane:active {
@@ -330,33 +342,42 @@ export const className = `
     stroke: var(--ring, ${config.accent});
     stroke-width: 6;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px rgba(168, 168, 168, .22));
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--ring, ${config.accent}) 40%, transparent));
     transition: stroke-dashoffset .28s linear;
   }
 
   .progress-content {
     position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+
+  .progress-content-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-variant-numeric: tabular-nums;
+    animation: valuePop .35s cubic-bezier(.2, .9, .25, 1);
   }
 
   .progress-value {
     color: #fff;
     font-size: 28px;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1;
     letter-spacing: -1px;
   }
 
   .progress-unit {
     margin-top: 5px;
-    color: #fff;
+    color: rgba(255, 255, 255, .62);
     font-size: 7px;
     font-weight: 650;
-    letter-spacing: .85px;
+    letter-spacing: 1.1px;
   }
 
   .color-icon {
@@ -365,6 +386,17 @@ export const className = `
     fill: #fff;
     opacity: .95;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .35));
+  }
+
+  @keyframes valuePop {
+    from {
+      opacity: 0;
+      transform: translateY(5px) scale(.9);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 `;
 
@@ -513,14 +545,16 @@ export const render = ({ now, modeIndex = 0, offsetX = 0, offsetY = 0, paneColor
           />
         </svg>
         <span className="progress-content">
-          {isColorMode ? (
-            <svg className="color-icon" viewBox="0 0 512 512" aria-hidden="true">
-              <path d="M50.75 333.25c-12 12-18.75 28.28-18.75 45.26V424L0 480l32 32 56-32h45.49c16.97 0 33.25-6.74 45.25-18.74l126.64-126.62c-14.58-6.12-28.8-14.03-41.1-26.35L50.75 333.25zM483.88 28.12c-37.47-37.5-98.28-37.5-135.75 0L238.75 137.5c-6.25 6.25-6.25 16.38 0 22.63l9.37 9.37-34.25 34.25c-9.37 9.37-9.37 24.56 0 33.94l22.62 22.62c9.37 9.37 24.56 9.37 33.94 0l34.25-34.25 9.37 9.37c6.25 6.25 16.38 6.25 22.63 0L411.88 164c37.5-37.47 37.5-98.28 0-135.75z" />
-            </svg>
-          ) : (
-            <span className="progress-value">{progressData.value}</span>
-          )}
-          <span className="progress-unit">{progressData.unit}</span>
+          <div key={mode} className="progress-content-inner">
+            {isColorMode ? (
+              <svg key="color" className="color-icon" viewBox="0 0 512 512" aria-hidden="true">
+                <path d="M50.75 333.25c-12 12-18.75 28.28-18.75 45.26V424L0 480l32 32 56-32h45.49c16.97 0 33.25-6.74 45.25-18.74l126.64-126.62c-14.58-6.12-28.8-14.03-41.1-26.35L50.75 333.25zM483.88 28.12c-37.47-37.5-98.28-37.5-135.75 0L238.75 137.5c-6.25 6.25-6.25 16.38 0 22.63l9.37 9.37-34.25 34.25c-9.37 9.37-9.37 24.56 0 33.94l22.62 22.62c9.37 9.37 24.56 9.37 33.94 0l34.25-34.25 9.37 9.37c6.25 6.25 16.38 6.25 22.63 0L411.88 164c37.5-37.47 37.5-98.28 0-135.75z" />
+              </svg>
+            ) : (
+              <span className="progress-value">{progressData.value}</span>
+            )}
+            <span className="progress-unit">{progressData.unit}</span>
+          </div>
         </span>
       </button>
     </div>
