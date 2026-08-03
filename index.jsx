@@ -182,7 +182,7 @@ export const className = `
   top: ${config.top};
   left: 50%;
   transform: translateX(-50%);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  font-family: "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
   color: white;
   user-select: none;
   pointer-events: none;
